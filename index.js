@@ -205,9 +205,10 @@ async function sendUserNotification(userId, title, message, type = "system", lin
 // =========================
 //  เส้นทาง HTML
 // =========================
-app.get("/", (req, res) =>
-  res.sendFile(path.join(viewsPath, "index.html"))
-);
+app.get("/", (req, res) => {
+  res.status(200).send("INTL-LOTTO server is running OK");
+});
+
 app.get("/index.html", (req, res) =>
   res.sendFile(path.join(viewsPath, "index.html"))
 );
