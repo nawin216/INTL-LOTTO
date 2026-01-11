@@ -1,7 +1,4 @@
-// worker.js (FINAL – PRODUCTION)
-
-require('dotenv').config();
-const connectDB = require('./config/db');
+// worker.js
 
 const {
   updateRoundStatuses,
@@ -13,26 +10,23 @@ const {
 
 let running = false;
 
-async function boot() {
-  await connectDB();
-  console.log('🟢 Worker connected to MongoDB');
+async function startWorker() {
+  console.log('🟢 Worker started');
 
-  // 🔁 ทำย้อนหลังทันทีตอนเปิด worker
+  // 🔁 ทำย้อนหลังทันทีตอนเริ่ม
   await catchUpPreGenerateDailyNumbers();
   await catchUpCreateDailyRounds();
   await catchUpSettleRounds();
   console.log('🟢 Catch-up completed');
 
-  // 🔁 LOOP ทุก 1 นาที (หัวใจของระบบ)
+  // 🔁 LOOP ทุก 1 นาที
   setInterval(async () => {
     if (running) return;
     running = true;
 
     try {
-      // ❗ ไม่ส่ง now เข้าไป
-      // lotteryEngine จะใช้ Asia/Bangkok ของตัวเอง
-      await updateRoundStatuses(); // open → closing → drawn
-      await settleDueRounds();     // drawn → settled
+      await updateRoundStatuses();
+      await settleDueRounds();
     } catch (err) {
       console.error('[WORKER] error:', err.message);
     } finally {
@@ -41,4 +35,4 @@ async function boot() {
   }, 60 * 1000);
 }
 
-boot();
+module.exports = { startWorker };

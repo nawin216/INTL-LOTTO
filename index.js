@@ -32,6 +32,7 @@ const {
   updateRoundStatuses,
   settleDueRounds
 } = require('./lotteryEngine');
+const { startWorker } = require('./worker');
 
 
 
@@ -478,6 +479,10 @@ setInterval(async () => {
 // ✅ เริ่มเซิร์ฟเวอร์
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+// ✅ เริ่ม worker พร้อมกับเว็บ
+  startWorker().catch(err => {
+    console.error("❌ Worker start failed:", err);
+  });
 });
 
 
