@@ -48,7 +48,7 @@ const User = require("./models/User");
 const chatRoutes = require("./routes/chat");
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 const viewsPath = path.join(__dirname, "views");
 
 // ✅ เชื่อมต่อ MongoDB
@@ -78,6 +78,7 @@ const io = socketIo(server, {
     console.error("❌ catchUpSettleRounds error:", err);
   }
 })();
+
 // ✅ ส่ง `io` ให้ทุก request
 app.use((req, res, next) => {
   req.io = io;
