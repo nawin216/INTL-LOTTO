@@ -1,15 +1,14 @@
 const express = require("express");
+
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// ⚠️ ใช้พอร์ตจาก Render เท่านั้น
-const PORT = process.env.PORT || 10000;
-const HOST = "0.0.0.0";   // สำคัญมากสำหรับ Cloud
-
+// test route
 app.get("/", (req, res) => {
-  res.send("INTL-LOTTO minimal server is working");
+  res.status(200).send("INTL-LOTTO is working on Render ✅");
 });
 
-// ✅ ต้อง bind ที่ 0.0.0.0
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
+// สำคัญมาก: อย่าระบุ host และอย่าใช้ http.createServer
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
