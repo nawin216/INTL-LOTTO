@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แชทกับแอดมิน — INTL LOTTO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Icons -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Prompt", sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* พื้นที่โชว์แชท เว้นที่ด้านล่างให้ input bar ไม่ทับ */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      padding-bottom: 80px; /* กันไม่ให้ข้อความโดน bar ทับ */
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .user-msg {
+      background: #0051ca;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .admin-msg {
+      background: white;
+      color: #111827;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .msg-time {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    .img-msg {
+      max-width: 160px;
+      max-height: 160px;
+      border-radius: 10px;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* แถบพิมพ์ข้อความ ตรึงด้านล่างหน้าจอ */
+    .chat-input-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px;
+      background: #ffffff;
+      box-shadow: 0 -2px 6px rgba(15, 23, 42, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 40;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom)); /* กันขอบจอบน iOS */
+    }
+
+    .chat-input-bar input[type="text"] {
+      border: 1px solid #e5e7eb;
+    }
+
+    @media (min-width: 768px) {
+      #chat-box {
+        max-width: 520px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .chat-input-bar {
+        max-width: 520px;
+        margin: 0 auto;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="flex flex-col">
+      <span class="font-semibold text-base">แชทกับแอดมิน</span>
+      <span class="text-[11px] opacity-90">สอบถามปัญหาและการใช้งานระบบ</span>
+    </div>
+  </div>
+
+  <!-- CHAT LIST -->
+  <div id="chat-box"></div>
+
+  <!-- INPUT BAR (ตรึงล่างจอ) -->
+  <div class="chat-input-bar">
+    <label for="image-input" class="cursor-pointer text-sky-600 text-xl">
+      <i class="fa-regular fa-image"></i>
+    </label>
+    <input id="image-input" type="file" accept="image/*" class="hidden"/>
+
+    <input id="msg-input"
+           type="text"
+           placeholder="พิมพ์ข้อความ..."
+           class="flex-1 rounded-lg px-3 py-2 text-sm focus:outline-none">
+
+    <button id="send-btn"
+            class="bg-sky-600 text-white rounded-lg px-4 py-2 text-sm">
+      ส่ง
+    </button>
+  </div>
+
+  <!-- Socket.IO client -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const API_BASE = '/api';
+
+    const chatBox   = document.getElementById('chat-box');
+    const msgInput  = document.getElementById('msg-input');
+    const sendBtn   = document.getElementById('send-btn');
+    const imageInput = document.getElementById('image-input');
+    const inputBar  = document.querySelector('.chat-input-bar');
+
+    let socket = null;
+    let roomId = null; // room แชทของ user นี้
+
+    function ensureLoggedIn() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อนใช้งานแชท');
+        window.location.href = '/index.html';
+        return null;
+      }
+      return token;
+    }
+
+    function formatTime(dateStr) {
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toLocaleTimeString('th-TH', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function addMessageBubble(message) {
+      const wrapper = document.createElement('div');
+      const isUser = message.senderType === 'user';
+
+      wrapper.className = 'message ' + (isUser ? 'user-msg' : 'admin-msg');
+
+      if (message.text) {
+        const textEl = document.createElement('div');
+        textEl.textContent = message.text;
+        wrapper.appendChild(textEl);
+      }
+
+      if (message.imageUrl) {
+        const img = document.createElement('img');
+        img.src = message.imageUrl;
+        img.className = 'img-msg';
+        img.alt = 'แนบรูปภาพ';
+        wrapper.appendChild(img);
+      }
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = formatTime(message.createdAt || new Date());
+      wrapper.appendChild(timeEl);
+
+      chatBox.appendChild(wrapper);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // โหลดห้องแชทของ user นี้ (ถ้าไม่มีให้ backend สร้างให้)
+    async function fetchUserRoom(token) {
+      const res = await fetch(`${API_BASE}/chat/user-room`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) throw new Error('โหลดห้องแชทไม่สำเร็จ');
+
+      const data = await res.json();
+      if (!data.success || !data.room) {
+        throw new Error('ไม่มี room สำหรับแชท');
+      }
+      return data.room;
+    }
+
+    // โหลดประวัติข้อความในห้อง
+    async function fetchMessages(token, roomId) {
+      const res = await fetch(`${API_BASE}/chat/messages/${roomId}`, {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+
+      if (!res.ok) {
+        console.error('โหลดประวัติแชทไม่สำเร็จ');
+        return [];
+      }
+
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.messages)) return [];
+      return data.messages;
+    }
+
+    function connectSocket(token) {
+      socket = io('/', {
+        auth: { token }
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('socket connect_error:', err.message);
+      });
+
+      socket.on('chat:message', (msg) => {
+        addMessageBubble(msg);
+      });
+    }
+
+    // ส่งข้อความ (เฉพาะ text) ผ่าน socket
+    function sendTextMessage(text) {
+      if (!socket || !roomId) return;
+      socket.emit('chat:send', {
+        roomId,
+        text
+      });
+    }
+
+    // อัปโหลดรูปแล้วส่งผ่าน socket
+    async function uploadImage(file, token) {
+      const form = new FormData();
+      form.append('image', file);
+
+      const res = await fetch(`${API_BASE}/chat/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        },
+        body: form
+      });
+
+      if (!res.ok) throw new Error('อัปโหลดรูปไม่สำเร็จ');
+      const data = await res.json();
+      if (!data.success || !data.url) throw new Error('รูปไม่ถูกส่งกลับมา');
+      return data.url;
+    }
+
+    async function initChat() {
+      const token = ensureLoggedIn();
+      if (!token) return;
+
+      let room;
+      try {
+        room = await fetchUserRoom(token);
+      } catch (err) {
+        console.error(err);
+        alert('ไม่สามารถโหลดห้องแชทได้');
+        return;
+      }
+      roomId = room._id;
+
+      connectSocket(token);
+
+      try {
+        const messages = await fetchMessages(token, roomId);
+        chatBox.innerHTML = '';
+        messages.forEach(m => addMessageBubble(m));
+      } catch (err) {
+        console.error(err);
+        chatBox.innerHTML = '';
+      }
+    }
+
+    // กดส่งข้อความ
+    sendBtn.addEventListener('click', () => {
+      const text = msgInput.value.trim();
+      if (!text) return;
+
+      sendTextMessage(text);
+      msgInput.value = '';
+    });
+
+    msgInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // เลือกรูป -> upload -> ส่งผ่าน socket
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบใหม่');
+        return;
+      }
+
+      try {
+        const url = await uploadImage(file, token);
+        if (!socket || !roomId) return;
+        socket.emit('chat:send', {
+          roomId,
+          imageUrl: url
+        });
+      } catch (err) {
+        console.error(err);
+        alert('อัปโหลดรูปไม่สำเร็จ');
+      } finally {
+        imageInput.value = '';
+      }
+    });
+
+    // ปรับตำแหน่ง input bar เวลาแป้นพิมพ์โผล่บนมือถือ
+    function adjustForKeyboard() {
+      if (!window.visualViewport || !inputBar) return;
+      const vv = window.visualViewport;
+      const heightDiff = window.innerHeight - vv.height;
+      const offset = heightDiff > 0 ? heightDiff : 0;
+      inputBar.style.transform =
+        `translate(-50%, -${offset}px)`; // desktop เราใช้ translateX(-50%) อยู่แล้วใน media query
+      if (window.innerWidth < 768) {
+        // บนมือถือไม่มี translateX(-50%) ก็ขยับแค่ Y
+        inputBar.style.transform = offset > 0
+          ? `translateY(-${offset}px)`
+          : 'translateY(0)';
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustForKeyboard);
+      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+    }
+
+    document.addEventListener('DOMContentLoaded', initChat);
+  </script>
+</body>
+</html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>กระเป๋าเงิน — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    padding: 6px 0 4px;
+    z-index: 50;
+  }
+
+  .bottom-nav .nav-item {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    color: #9e9e9e;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .bottom-nav .nav-item i {
+    font-size: 18px;
+  }
+
+  .bottom-nav .nav-item.active {
+    color: #29b6f6;
+  }
+
+  .bottom-nav .nav-item.active i {
+    color: #29b6f6;
+  }
+
+  .page-bottom-space {
+    height: 56px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Prompt", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    background: radial-gradient(circle at top, #e0f2fe 0, #e5e7eb 45%, #e0e0e0 100%);
+    color: #333;
+  }
+
+  .wrapper {
+    max-width: 480px;
+    margin: 16px auto 40px;
+    padding: 0 12px 24px;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px 18px 20px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.12);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at top left, rgba(56,189,248,0.22), transparent 55%);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .card-header h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #0288d1;
+  }
+
+  .card-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 3px;
+  }
+
+  .card-tag {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.4);
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(248,250,252,0.9);
+  }
+
+  .card-tag i {
+    font-size: 10px;
+  }
+
+  .balance-label {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .balance-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .balance-big {
+    font-size: 30px;
+    font-weight: 700;
+    color: #0ea5e9;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    padding: 3px 10px;
+    border: 1px solid #bae6fd;
+    font-size: 11px;
+    color: #0369a1;
+    background: #e0f2fe;
+  }
+
+  .badge i {
+    font-size: 10px;
+  }
+
+  /* ปุ่มฝาก / ถอน */
+  .wallet-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .wallet-actions button {
+    flex: 1;
+    padding: 11px 0;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-deposit {
+    background: linear-gradient(135deg,#0284c7,#0ea5e9);
+    color: #ffffff;
+    border-color: rgba(59,130,246,0.0);
+    box-shadow: 0 6px 16px rgba(37,99,235,0.45);
+  }
+
+  .btn-deposit:hover {
+    background: linear-gradient(135deg,#0369a1,#0ea5e9);
+  }
+
+  .btn-withdraw {
+    background: #ffffff;
+    color: #0284c7;
+    border-color: #0284c7;
+  }
+
+  .btn-withdraw:hover {
+    background: #e0f2fe;
+    border-color: #0369a1;
+  }
+
+  .wallet-actions button i {
+    font-size: 14px;
+  }
+
+  @media (max-width: 430px) {
+    .wallet-actions {
+      flex-direction: row;
+    }
+    .wallet-actions button {
+      font-size: 14px;
+      padding: 11px 0;
+    }
+  }
+
+  .wallet-stats {
+    display: flex;
+    margin-top: 14px;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 8px;
+    gap: 14px;
+    font-size: 12px;
+  }
+
+  .wallet-stat-item {
+    flex: 1;
+  }
+
+  .wallet-stat-label {
+    color: #6b7280;
+    margin-bottom: 2px;
+  }
+
+  .wallet-stat-value {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .status-text {
+    font-size: 12px;
+    margin-top: 6px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-text i {
+    font-size: 12px;
+  }
+
+  /* ประวัติการเคลื่อนไหว */
+  .history-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .history-badge i {
+    font-size: 10px;
+  }
+
+  .table-header,
+  .table-row {
+    display: grid;
+    grid-template-columns: 35% 35% 23%;
+    column-gap: 6px;
+    font-size: 11px;
+    align-items: center;
+  }
+
+  .table-header {
+    padding: 6px 0;
+    border-bottom: 1px solid #e0e0e0;
+    color: #6b7280;
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .table-row {
+    padding: 7px 0;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+
+  .tx-main-time {
+    font-weight: 500;
+    color: #111827;
+    font-size: 11px;
+  }
+
+  .tx-sub-date {
+    font-size: 10px;
+    color: #9ca3af;
+  }
+
+  .tx-type-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 500;
+    gap: 4px;
+  }
+
+  .pill-deposit {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+  .pill-deposit i {
+    color: #0284c7;
+  }
+
+  .pill-withdraw {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .pill-withdraw i {
+    color: #ef4444;
+  }
+
+  .tx-amount {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .tx-amount.plus {
+    color: #16a34a;
+  }
+
+  .tx-amount.minus {
+    color: #e11d48;
+  }
+
+  .tx-balance {
+    font-size: 11px;
+    color: #111827;
+  }
+
+  .tx-balance-label {
+    font-size: 10px;
+    color: #9ca3af;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 420px) {
+    .balance-big {
+      font-size: 26px;
+    }
+    .table-header, .table-row {
+      font-size: 10px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <!-- TOPBAR -->
+  <div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-brand">
+      <img src="/images/intl-lotto-logo1.png" alt="INTL LOTTO">
+    </div>
+
+    <!-- ปุ่มกระดิ่งอยู่ใน topbar-inner ด้านขวา -->
+    <div class="topbar-actions">
+      <button onclick="openNotifications()" class="notif-btn">
+        <i class="fas fa-bell"></i>
+        <span id="notif-dot" class="notif-dot hidden"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+  <div class="wrapper">
+    <!-- main wallet card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>กระเป๋าเงินของฉัน</h2>
+          <div class="card-sub">ดูยอดคงเหลือ และประวัติการฝาก / ถอน ของคุณ</div>
+        </div>
+        <div class="card-tag">
+          <i class="fas fa-shield-alt"></i>
+          ปลอดภัยด้วยระบบเข้ารหัส
+        </div>
+      </div>
+
+      <div class="balance-label">ยอดคงเหลือ</div>
+      <div class="balance-row">
+        <div class="balance-big" id="balanceText">-</div>
+        <div>
+          <span class="badge">
+            <i class="fas fa-coins"></i>
+            THB
+          </span>
+        </div>
+      </div>
+
+      <div class="wallet-actions">
+        <button class="btn-deposit" onclick="goDeposit()">
+          <i class="fas fa-arrow-down"></i>
+          ฝากเงิน
+        </button>
+        <button class="btn-withdraw" onclick="goWithdraw()">
+          <i class="fas fa-arrow-up"></i>
+          ถอนเงิน
+        </button>
+      </div>
+
+      <div class="wallet-stats">
+        <div class="wallet-stat-item">
+          <div class="wallet-stat-label">ฝากสะสม</div>
+          <div class="wallet-stat-value" id="totalDepositsText">-</div>
+        </div>
+        <div class="wallet-stat-item">
+          <div class="wallet-stat-label">ถอนสะสม</div>
+          <div class="wallet-stat-value" id="totalWithdrawalsText">-</div>
+        </div>
+      </div>
+
+      <div class="status-text" id="walletStatus">
+        <!-- จะถูกเติมด้วย JS -->
+      </div>
+    </div>
+
+    <!-- transactions -->
+    <div class="card">
+      <div class="card-header history-header-row">
+        <div>
+          <h2>ประวัติการเคลื่อนไหว</h2>
+          <div class="card-sub">
+            แสดงออเดอร์ฝาก / ถอนล่าสุด สูงสุด 50 รายการ
+          </div>
+        </div>
+        <div class="history-badge">
+          <i class="fas fa-history"></i>
+          Real-time
+        </div>
+      </div>
+
+      <div id="txContainer">
+        <div class="empty-state">กำลังโหลดข้อมูล...</div>
+      </div>
+    </div>
+  </div>
+<script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+   
+  <script>
+    const API_WALLET = "/api/wallet";
+    const API_TX = "/api/transactions/user-history";
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+
+    function ensureLoggedIn() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/";
+      }
+      return token;
+    }
+
+    function goDeposit() {
+      window.location.href = "/deposit";
+    }
+
+    function goWithdraw() {
+      window.location.href = "/withdraw";
+    }
+
+    function formatMoney(num) {
+      if (typeof num !== "number" || isNaN(num)) return "-";
+      return num.toLocaleString("th-TH", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+
+    function mapTypeToLabel(type) {
+      switch (type) {
+        case "deposit": return "ฝากเงิน";
+        case "withdraw": return "ถอนเงิน";
+        default: return type || "-";
+      }
+    }
+
+    function mapTypeToPillClass(type) {
+      switch (type) {
+        case "deposit": return "tx-type-pill pill-deposit";
+        case "withdraw": return "tx-type-pill pill-withdraw";
+        default: return "tx-type-pill";
+      }
+    }
+
+    function isPlus(type) {
+      return type === "deposit";
+    }
+
+    async function loadWallet() {
+      const token = ensureLoggedIn();
+      const statusEl = document.getElementById("walletStatus");
+
+      try {
+        const res = await fetch(API_WALLET, {
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i>' +
+            (data.message || "ไม่สามารถดึงข้อมูลกระเป๋าได้");
+          statusEl.style.color = "#e11d48";
+          return;
+        }
+
+        const w = data.wallet || {};
+        document.getElementById("balanceText").textContent =
+          formatMoney(w.balance || 0) || "0";
+        document.getElementById("totalDepositsText").textContent =
+          formatMoney(w.totalDeposits || 0);
+        document.getElementById("totalWithdrawalsText").textContent =
+          formatMoney(w.totalWithdrawals || 0);
+
+        statusEl.innerHTML =
+          '<i class="fas fa-check-circle" style="color:#22c55e;"></i> ข้อมูลล่าสุดอัปเดตแล้ว';
+        statusEl.style.color = "#16a34a";
+      } catch (err) {
+        console.error(err);
+        statusEl.innerHTML =
+          '<i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+        statusEl.style.color = "#e11d48";
+      }
+    }
+
+    async function loadTransactions() {
+      const token = ensureLoggedIn();
+      const container = document.getElementById("txContainer");
+
+      try {
+        const res = await fetch(API_TX, {
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.ok || !Array.isArray(data.transactions)) {
+          container.innerHTML =
+            '<div class="empty-state">ยังไม่มีข้อมูลการเคลื่อนไหว</div>';
+          return;
+        }
+
+        // ✅ เอาเฉพาะออเดอร์ฝาก / ถอน
+        const onlyWalletOrders = data.transactions.filter((tx) =>
+          tx.type === "deposit" || tx.type === "withdraw"
+        );
+
+        const list = onlyWalletOrders.slice(0, 50);
+
+        if (!list.length) {
+          container.innerHTML =
+            '<div class="empty-state">ยังไม่มีข้อมูลการฝาก / ถอน</div>';
+          return;
+        }
+
+        let html = `
+          <div class="table-header">
+            <div>เวลา</div>
+            <div>ประเภท</div>
+            <div style="text-align:right;">จำนวน</div>
+          </div>
+        `;
+
+        html += list.map(tx => {
+          const createdAt = tx.createdAt ? new Date(tx.createdAt) : null;
+
+          // แยกวันที่/เวลาให้ดูอ่านง่าย
+          let timeStr = "-";
+          let dateStr = "";
+          if (createdAt) {
+            timeStr = createdAt.toLocaleTimeString("th-TH", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+            dateStr = createdAt.toLocaleDateString("th-TH", {
+              year: "2-digit", month: "2-digit", day: "2-digit"
+            });
+          }
+
+          const typeLabel = mapTypeToLabel(tx.type);
+          const pillClass = mapTypeToPillClass(tx.type);
+          const amount = typeof tx.amount === "number" ? tx.amount : 0;
+          const balanceAfter = typeof tx.balanceAfter === "number"
+            ? tx.balanceAfter
+            : null;
+          const plus = isPlus(tx.type);
+          const sign = plus ? "+" : "-";
+          const amountClass = "tx-amount " + (plus ? "plus" : "minus");
+
+          return `
+            <div class="table-row">
+              <div>
+                <div class="tx-main-time">${timeStr}</div>
+                <div class="tx-sub-date">${dateStr}</div>
+              </div>
+              <div>
+                <span class="${pillClass}">
+                  <i class="fas ${tx.type === 'deposit' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                  ${typeLabel}
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <span class="${amountClass}">
+                  ${sign}${formatMoney(amount)}
+                </span>
+              </div>
+              <div style="text-align:right;">
+                <div class="tx-balance">
+                  ${balanceAfter != null ? formatMoney(balanceAfter) : ""}
+                </div>
+              
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML =
+          '<div class="empty-state">โหลดประวัติไม่สำเร็จ</div>';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      ensureLoggedIn();
+      loadWallet();
+      loadTransactions();
+    });
+
+    function openNotifications() {
+    window.location.href = "/notifications";
+  }
+
+  document.addEventListener("DOMContentLoaded", checkNotifications);
+
+    window.addEventListener("pageshow", (event) => {
+    // ถ้าหน้านี้ถูกดึงจาก BFCache ให้เช็ก noti ใหม่
+    checkNotifications();
+   });
+
+
+  async function checkNotifications() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const res = await fetch("/api/notifications/unread-count", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const data = await res.json();
+
+    const dot = document.getElementById("notif-dot");
+    if (!dot) return;
+
+    const unread = data.count || 0;   // backend ส่ง count
+
+    if (unread > 0) {
+      dot.classList.remove("hidden");
+    } else {
+      dot.classList.add("hidden");
+    }
+  } catch (err) {
+    console.error("noti check error", err);
+  }
+}
+
+
+  const token =
+  localStorage.getItem("token") ||
+  localStorage.getItem("authToken") ||
+  localStorage.getItem("jwt");
+
+const socket = io({
+  auth: { token }
+});
+
+// 🔔 real-time notification (profile.html)
+socket.on("notification:new", () => {
+  console.log("🔔 notification:new (profile)");
+  checkNotifications(); // ใช้ของเดิม
+});
+
+  </script>
+
+  <script>
+  let lastBalance = null;
+  let lastHasNotification = null;
+
+  async function refreshState() {
+    try {
+      const res = await fetch("/api/state", {
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      /* =====================
+         💰 ยอดเงิน
+      ===================== */
+      if (typeof data.balance === "number" && data.balance !== lastBalance) {
+        lastBalance = data.balance;
+        const balanceEl = document.getElementById("balanceText");
+        if (balanceEl) {
+          balanceEl.innerText = data.balance.toLocaleString();
+        }
+      }
+
+      /* =====================
+         🔔 จุดแดงแจ้งเตือน
+      ===================== */
+      if (typeof data.hasNotification === "boolean" &&
+          data.hasNotification !== lastHasNotification) {
+
+        lastHasNotification = data.hasNotification;
+        const dot = document.getElementById("notif-dot");
+
+        if (dot) {
+          if (data.hasNotification) {
+            dot.classList.remove("hidden");
+          } else {
+            dot.classList.add("hidden");
+          }
+        }
+      }
+
+    } catch (err) {
+      console.error("refreshState error:", err);
+    }
+  }
+  // เรียกทันทีเมื่อเปิดหน้า
+  refreshState();
+
+  // เรียกซ้ำทุก 2 วินาที
+  setInterval(refreshState, 2000);
+</script>
+
+
+
+  <div class="page-bottom-space"></div>
+
+  <div class="bottom-nav">
+    <a href="/lottery" class="nav-item">
+      <i class="fas fa-ticket-alt"></i>
+      <span>ซื้อหวย</span>
+    </a>
+    <a href="/wallet" class="nav-item active">
+      <i class="fas fa-wallet"></i>
+      <span>กระเป๋าเงิน</span>
+    </a>
+    <a href="/profile" class="nav-item">
+      <i class="fas fa-user"></i>
+      <span>โปรไฟล์</span>
+    </a>
+  </div>
+</body>
+</html>

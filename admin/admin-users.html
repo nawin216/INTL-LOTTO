@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — รายชื่อผู้ใช้</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#071027;
+      --panel:#0b1220;
+      --card:#0f172a;
+      --border:rgba(255,255,255,.06);
+      --text:#e6eef6;
+      --muted:#9aa4b2;
+      --accent:#60e0b0;
+      --primary:#38bdf8;
+      --danger:#ff6b6b;
+      --radius:14px;
+      --shadow:0 12px 30px rgba(2,6,23,.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui;
+      background:linear-gradient(180deg,#06121f,#071027);
+      color:var(--text);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      position:fixed;
+      top:0; left:0;
+      width:220px;
+      height:100vh;
+      background:linear-gradient(180deg,#071427,#060d1a);
+      border-right:1px solid var(--border);
+      padding:18px 14px;
+    }
+    .sidebar h2{
+      margin:0 0 18px;
+      font-size:16px;
+      font-weight:700;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .nav a:hover,
+    .nav a.active{
+      background:rgba(96,224,176,.12);
+      color:var(--accent);
+    }
+
+    /* ===== Main ===== */
+    .main{
+      margin-left:220px;
+      padding:22px;
+    }
+    header{
+      margin-bottom:18px;
+    }
+    header h1{
+      margin:0;
+      font-size:20px;
+      font-weight:700;
+    }
+    .muted{ color:var(--muted); font-size:13px }
+
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      margin-top:14px;
+    }
+
+    /* controls */
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .controls input,
+    .controls select{
+      background:transparent;
+      color:var(--text);
+      border:1px solid var(--border);
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .controls input{ flex:1; min-width:220px }
+
+    /* table */
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+    }
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px dashed rgba(255,255,255,.06);
+      font-size:14px;
+      text-align:left;
+    }
+    th{ color:var(--muted) }
+
+    /* status pill (เดิม) */
+    .status-pill{
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:13px;
+    }
+    .status-pill.good{
+      background:rgba(96,224,176,.08);
+      color:var(--accent);
+    }
+    .status-pill.bad{
+      background:rgba(255,107,107,.08);
+      color:var(--danger);
+    }
+
+    /* ===== ปุ่มจัดการ ===== */
+    .btn-manage{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 16px;
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      color:#02121b;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+      box-shadow:0 6px 18px rgba(56,189,248,.35);
+      transition:.15s ease;
+    }
+    .btn-manage:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(96,224,176,.45);
+    }
+
+    /* toast */
+    #toast{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      padding:10px 14px;
+      border-radius:10px;
+      display:none;
+      background:rgba(10,14,22,.9);
+      border:1px solid rgba(255,255,255,.06);
+      z-index:9999;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar">
+  <h2>INTL LOTTO</h2>
+  <nav class="nav">
+  <a href="/admin-users">ผู้ใช้</a>
+  <a href="/admin-lottery">หวย</a>
+  <a href="/admin-chat">แชท</a>
+</nav>
+</aside>
+
+<!-- ===== Main ===== -->
+<div class="main">
+
+  <header>
+    <h1>Admin — รายชื่อผู้ใช้</h1>
+    <div class="muted">จัดการผู้ใช้ / ยอดเงิน / สิทธิฝากถอน</div>
+  </header>
+
+  <div id="toast"></div>
+
+  <div class="card">
+    <div class="controls">
+      <input id="searchInput" type="text" placeholder="ค้นหา (อีเมล หรือ UID)">
+      <select id="filterStatus">
+        <option value="">ทั้งหมด</option>
+        <option value="deposit_disabled">ห้ามฝาก</option>
+        <option value="withdraw_disabled">ห้ามถอน</option>
+      </select>
+      <select id="sortSelect">
+        <option value="created_desc">เรียง: ใหม่สุด</option>
+        <option value="created_asc">เรียง: เก่าสุด</option>
+        <option value="balance_desc">ยอดเงิน: มาก → น้อย</option>
+        <option value="balance_asc">ยอดเงิน: น้อย → มาก</option>
+      </select>
+    </div>
+
+    <div id="usersSummary" class="muted">กำลังโหลด...</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>UID</th>
+          <th>อีเมล</th>
+          <th>ยอดเงิน</th>
+          <th>ฝาก</th>
+          <th>ถอน</th>
+          <th>สร้างเมื่อ</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="usersTbody">
+        <tr>
+          <td colspan="7" class="muted">กำลังโหลด...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- JS เดิม -->
+<script type="module" src="/js/admin-users/ui.js"></script>
+
+</body>
+</html>

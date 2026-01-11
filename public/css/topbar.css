@@ -1,0 +1,103 @@
+/* ====== TOPBAR DARK / NEO BLUR ใช้ร่วมกันทุกหน้า ====== */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: rgba(0, 136, 226, 0.918);          /* ดำอมน้ำเงินแบบแอป */
+  backdrop-filter: blur(16px);                 /* เนโอบลอรี */
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 164, 233, 0.808);
+  box-shadow: 0 10px 30px rgba(170, 170, 170, 0.904);
+}
+
+/* ให้เนื้อหาข้างในอยู่กลางจอเหมือนแอปมือถือ */
+.topbar-inner {
+  max-width: 480px;           /* ฟีลมือถือ */
+  margin: 0 auto;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* โลโก้ + ชื่อแบรนด์ */
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.topbar-brand img {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+
+/* ตัวหนังสือแบรนด์สองบรรทัด */
+.topbar-title-main {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e5f4ff;
+}
+
+.topbar-title-sub {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+}
+
+/* ปุ่มฝั่งขวา (ถ้าจะมีในบางหน้า) */
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.topbar-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.7);
+  color: #e5f4ff;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.topbar-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.7);
+}
+
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ปุ่มกระดิ่ง */
+.notif-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 20px;
+  position: relative;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #ef4444;
+}
+
+/* ซ่อน element ที่มี class="hidden" (ใช้กับจุดแดงแจ้งเตือน) */
+.hidden {
+  display: none !important;
+}

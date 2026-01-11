@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ข้อมูลส่วนตัว — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif !important;
+      background: radial-gradient(circle at top, #e0f2fe 0, #e5e7eb 45%, #e5e5e5 100%);
+      color: #111827;
+    }
+
+    .page-wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 22px;
+      box-shadow: 0 14px 32px rgba(15,23,42,0.16);
+      padding: 18px 18px 20px;
+      margin-top: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left,
+        rgba(56,189,248,0.25),
+        transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(248,250,252,0.96);
+    }
+
+    .info-row + .info-row {
+      margin-top: 6px;
+    }
+
+    .info-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff6ff;
+      font-size: 14px;
+    }
+
+    .value-main {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,118,110,0.06);
+      color: #0f766e;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-card {
+      margin-top: 10px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 18px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 22px rgba(148,163,184,0.28);
+      border: 1px solid rgba(148,163,184,0.18);
+    }
+
+    .summary-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      background: linear-gradient(135deg,#0ea5e9,#22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 600;
+      font-size: 18px;
+      box-shadow: 0 10px 20px rgba(14,165,233,0.55);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .summary-email {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .summary-uid {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-balance {
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .summary-balance-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0 4px;
+      z-index: 50;
+    }
+    .bottom-nav .nav-item {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #9e9e9e;
+    }
+    .bottom-nav .nav-item i {
+      font-size: 18px;
+    }
+    .bottom-nav .nav-item.active {
+      color: #0ea5e9;
+    }
+    .bottom-nav .nav-item.active i {
+      color: #0ea5e9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div class="flex-1 flex items-center justify-between">
+      <div>
+        <div class="text-lg font-semibold leading-none">INTL LOTTO</div>
+        <div class="text-[11px] opacity-90 -mt-0.5">ข้อมูลส่วนตัว &amp; วงเงินถอน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="page-wrapper">
+
+    <!-- SUMMARY BAR -->
+    <div class="summary-card">
+      <div class="summary-avatar" id="summaryAvatar">
+        U
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="summary-label">ผู้ใช้งาน</div>
+        <div class="summary-email truncate" id="summaryEmail">กำลังโหลด...</div>
+        <div class="summary-uid">
+          <i class="fa-regular fa-id-badge text-[10px]"></i>
+          <span id="summaryUid"></span>
+        </div>
+      </div>
+      <div class="summary-balance">
+        <div class="summary-label">ยอดคงเหลือ</div>
+        <div class="summary-balance-value" id="summaryBalance">0.00</div>
+        <div class="text-[10px] text-gray-400">THB</div>
+      </div>
+    </div>
+
+    <!-- DETAIL CARD -->
+    <div class="card">
+      <div class="card-inner">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="section-label">Wallet Overview</div>
+            <h2 class="text-[15px] font-semibold text-gray-800 mt-1">
+              ข้อมูลส่วนตัว &amp; รายละเอียดกระเป๋า
+            </h2>
+          </div>
+          <span class="chip">
+            <i class="fa-regular fa-clock text-[10px]"></i>
+            อัปเดตอัตโนมัติ
+          </span>
+        </div>
+
+        <div class="mt-3 space-y-3 text-sm">
+
+          <!-- USER INFO -->
+          <div class="info-row">
+            <div class="info-icon">
+              <i class="fas fa-id-card text-blue-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">ไอดีผู้ใช้</span>
+                <span class="value-main text-gray-700" id="uid">กำลังโหลด...</span>
+              </div>
+              <div class="text-[11px] text-gray-500 mt-0.5">
+                รหัสประจำตัวสำหรับติดต่อเจ้าหน้าที่
+              </div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon bg-emerald-50">
+              <i class="fas fa-envelope text-emerald-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">อีเมล</span>
+                <span class="ml-auto text-gray-700 truncate max-w-[55%]" id="email">
+                  กำลังโหลด...
+                </span>
+              </div>
+              <div class="text-[11px] text-gray-500 mt-0.5">
+                ใช้สำหรับล็อกอินและรับการแจ้งเตือนสำคัญ
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-2 border-dashed border-gray-200">
+
+          <!-- BALANCE -->
+          <div class="info-row">
+            <div class="info-icon bg-sky-50">
+              <i class="fas fa-wallet text-sky-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">ยอดคงเหลือ</span>
+                <span class="value-main text-sky-600" id="balance">0.00</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                <span>ยอดเงินที่สามารถใช้เล่นหรือถอน</span>
+                <span>THB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOTAL DEPOSITS -->
+          <div class="info-row">
+            <div class="info-icon bg-amber-50">
+              <i class="fas fa-coins text-amber-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">ยอดสะสมฝาก</span>
+                <span class="value-main text-gray-800" id="totalDeposits">0.00</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                <span>รวมยอดฝากทั้งหมดตั้งแต่เปิดบัญชี</span>
+                <span>THB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- WITHDRAW 24H -->
+          <div class="info-row">
+            <div class="info-icon bg-rose-50">
+              <i class="fas fa-hand-holding-usd text-rose-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">ถอนทั้งหมด 24 ชม.</span>
+                <span class="value-main text-gray-800" id="totalWithdrawals24h">0.00</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                <span>ยอดถอนที่ทำภายใน 24 ชั่วโมงล่าสุด</span>
+                <span>THB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAX WITHDRAW 24H -->
+          <div class="info-row">
+            <div class="info-icon bg-emerald-50">
+              <i class="fas fa-unlock text-emerald-500"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-gray-700 text-[13px]">ถอนสูงสุด 24 ชม.</span>
+                <span class="value-main text-gray-800" id="availableToWithdraw24h">0.00</span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
+                <span>คำนวณจากยอดฝากสะสมของบัญชี</span>
+                <span>THB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INFO BAR -->
+          <div class="mt-3 flex items-start gap-2 text-[11px] text-gray-500 bg-sky-50/80 border border-sky-100 px-3 py-2.5 rounded-xl">
+            <i class="fa-solid fa-circle-info text-sky-500 mt-0.5"></i>
+            <span>
+              * ระบบจะตรวจสอบวงเงินถอนตามยอดฝากสะสมและประวัติการถอนของคุณโดยอัตโนมัติ
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-[11px] text-gray-500 mt-3 px-4">
+      * ข้อมูลข้างต้นใช้สำหรับตรวจสอบความปลอดภัยและการจัดการวงเงินถอนของบัญชีของคุณ
+    </p>
+  </div>
+
+  <div class="h-16"></div>
+
+  <script>
+    const API_URL = "/api";
+    const token = localStorage.getItem("token");
+
+    function toNumber(value, fallback = 0) {
+      const n = Number(value);
+      return isNaN(n) ? fallback : n;
+    }
+
+    function updateSummary(email, uid, balance) {
+      const avatar = document.getElementById("summaryAvatar");
+      const emailEl = document.getElementById("summaryEmail");
+      const uidEl = document.getElementById("summaryUid");
+      const balanceEl = document.getElementById("summaryBalance");
+
+      if (email) {
+        emailEl.textContent = email;
+        const initial = email.trim()[0]?.toUpperCase() || "U";
+        avatar.textContent = initial;
+      }
+      if (uid) {
+        uidEl.textContent = uid;
+      }
+      if (typeof balance === "number") {
+        balanceEl.textContent = balance.toFixed(2);
+      }
+    }
+
+    async function fetchPersonalInfo() {
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบก่อนเข้าหน้านี้");
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        // ดึงข้อมูลผู้ใช้
+        const profileRes = await fetch(`${API_URL}/profile`, {
+          method: "GET",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const profileData = await profileRes.json();
+        console.log("✅ ข้อมูลผู้ใช้:", profileData);
+
+        if (profileRes.ok && profileData) {
+          const uid = profileData.uid || "ไม่พบข้อมูล";
+          const email = profileData.email || "ไม่พบข้อมูล";
+
+          document.getElementById("uid").textContent = uid;
+          document.getElementById("email").textContent = email;
+
+          // อัปเดตสรุปด้านบน (balance ใส่ทีหลังตอนรู้ค่าจริง)
+          updateSummary(email, `UID${uid}`, 0);
+        } else {
+          document.getElementById("uid").textContent = "ไม่พบข้อมูล";
+          document.getElementById("email").textContent = "ไม่พบข้อมูล";
+        }
+
+        // ดึงข้อมูล Wallet (จาก /api/wallet/info)
+        const walletRes = await fetch(`${API_URL}/wallet/info`, {
+          method: "GET",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const walletData = await walletRes.json();
+        console.log("✅ ข้อมูล Wallet:", walletData);
+
+        if (walletRes.ok && walletData) {
+          // รองรับทั้งแบบ { balance, totalDeposits, ... } และ { wallet:{...} }
+          const balance =
+            toNumber(walletData.balance ?? walletData.wallet?.balance ?? 0);
+          const totalDeposits =
+            toNumber(walletData.totalDeposits ?? walletData.wallet?.totalDeposits ?? 0);
+          const totalWithdrawals24h =
+            toNumber(walletData.totalWithdrawals24h ?? 0);
+          const availableToWithdraw24h =
+            toNumber(walletData.availableToWithdraw24h ?? totalDeposits);
+
+          document.getElementById("balance").textContent = balance.toFixed(2);
+          document.getElementById("totalDeposits").textContent = totalDeposits.toFixed(2);
+          document.getElementById("totalWithdrawals24h").textContent = totalWithdrawals24h.toFixed(2);
+          document.getElementById("availableToWithdraw24h").textContent = availableToWithdraw24h.toFixed(2);
+
+          // อัปเดต summary card ด้วยยอดจริง
+          const emailNow = document.getElementById("email").textContent;
+          const uidNow = document.getElementById("uid").textContent;
+          updateSummary(emailNow, `${uidNow}`, balance);
+        } else {
+          console.error("❌ โหลดข้อมูล Wallet ไม่สำเร็จ:", walletData);
+        }
+      } catch (err) {
+        console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล:", err);
+      }
+    }
+
+    fetchPersonalInfo();
+  </script>
+
+</body>
+</html>

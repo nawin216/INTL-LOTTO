@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ประวัติยอดคงเหลือ — INTL LOTTO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif !important;
+      background: #e0e0e0;
+      color: #111827;
+    }
+    .page-wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      padding: 18px 18px 20px;
+      margin-bottom: 16px;
+    }
+    .chip-filter {
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: #6b7280;
+      cursor: pointer;
+      user-select: none;
+    }
+    .chip-filter.active {
+      border-color: #0ea5e9;
+      color: #0ea5e9;
+      background: #e0f2fe;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div>
+      <div class="text-lg font-semibold leading-none">INTL LOTTO</div>
+      <div class="text-xs opacity-90 -mt-1">ประวัติยอดคงเหลือ</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="page-wrapper">
+
+    <!-- ยอดคงเหลือปัจจุบัน -->
+    <div class="card">
+      <p class="text-sm text-gray-500 mb-1">ยอดคงเหลือปัจจุบัน</p>
+      <p class="text-3xl font-semibold text-sky-600">
+        <span id="current-balance">กำลังโหลด...</span>
+        <span class="text-base font-medium text-gray-500">THB</span>
+      </p>
+      <p class="text-[11px] text-gray-400 mt-1">
+        ข้อมูลอาจคลาดเคลื่อนเล็กน้อยจากเวลาอัปเดตจริง
+      </p>
+    </div>
+
+    <!-- ประวัติการเคลื่อนไหว -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base font-semibold text-gray-800">ประวัติการเคลื่อนไหว</h2>
+        <button
+          id="btn-refresh"
+          class="text-xs px-3 py-1 rounded-full border border-sky-400 text-sky-500 hover:bg-sky-50"
+        >
+          รีเฟรช
+        </button>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button class="chip-filter active" data-filter="all">ทั้งหมด</button>
+        <button class="chip-filter" data-filter="deposit">ฝาก</button>
+        <button class="chip-filter" data-filter="withdraw">ถอน</button>
+        <button class="chip-filter" data-filter="lottery_purchase">แทงหวย</button>
+        <button class="chip-filter" data-filter="lottery_win">ถูกรางวัล</button>
+      </div>
+
+      <div id="transaction-history" class="space-y-2 text-sm">
+        <p class="text-center text-orange-500 text-xs">กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="h-16"></div>
+
+  <script>
+    const API_BASE = "/api";
+    const token = localStorage.getItem("token");
+    let allTransactions = [];
+    let currentFilter = "all";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบก่อนเข้าหน้านี้");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // กดเปลี่ยน filter
+      document.querySelectorAll(".chip-filter").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".chip-filter").forEach((b) =>
+            b.classList.remove("active")
+          );
+          btn.classList.add("active");
+          currentFilter = btn.getAttribute("data-filter") || "all";
+          renderTransactions();
+        });
+      });
+
+      // ปุ่มรีเฟรช
+      document.getElementById("btn-refresh").addEventListener("click", () => {
+        loadTransactions();
+      });
+
+      await loadBalance();
+      await loadTransactions();
+    });
+
+    async function loadBalance() {
+      const balanceEl = document.getElementById("current-balance");
+
+      try {
+        // ใช้ /api/wallet (อิงจาก wallet.html ของโปรเจกต์)
+        const res = await fetch(`${API_BASE}/wallet`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+
+        let balance = null;
+
+        if (typeof data.balance === "number") {
+          balance = data.balance;
+        } else if (data.wallet && typeof data.wallet.balance === "number") {
+          balance = data.wallet.balance;
+        } else if (data.data && typeof data.data.balance === "number") {
+          balance = data.data.balance;
+        }
+
+        if (balance === null) {
+          console.log("⚠️ wallet api response format ไม่ตรง:", data);
+          balanceEl.textContent = "โหลดข้อมูลผิดพลาด";
+          return;
+        }
+
+        balanceEl.textContent = balance.toFixed(2);
+      } catch (err) {
+        console.error("loadBalance error:", err);
+        balanceEl.textContent = "โหลดข้อมูลผิดพลาด";
+      }
+    }
+
+    async function loadTransactions() {
+      const historyContainer = document.getElementById("transaction-history");
+      historyContainer.innerHTML =
+        "<p class='text-center text-orange-500 text-xs'>กำลังโหลดข้อมูล...</p>";
+
+      try {
+        const res = await fetch(`${API_BASE}/transactions/user-history`, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        let transactions = [];
+
+        // รองรับได้ทั้ง 3 รูปแบบ
+        if (Array.isArray(data)) {
+          transactions = data;
+        } else if (Array.isArray(data.transactions)) {
+          transactions = data.transactions;
+        } else if (Array.isArray(data.data)) {
+          transactions = data.data;
+        }
+
+        if (!res.ok || !Array.isArray(transactions)) {
+          console.log("⚠️ transactions api response ไม่ถูกต้อง:", data);
+          historyContainer.innerHTML =
+            "<p class='text-center text-red-500 text-xs'>เกิดข้อผิดพลาดในการโหลดข้อมูล</p>";
+          return;
+        }
+
+        allTransactions = transactions;
+        renderTransactions();
+      } catch (error) {
+        console.error("❌ Error fetching transactions:", error);
+        historyContainer.innerHTML =
+          "<p class='text-center text-red-500 text-xs'>เกิดข้อผิดพลาดในการโหลดข้อมูล</p>";
+      }
+    }
+
+    function renderTransactions() {
+      const historyContainer = document.getElementById("transaction-history");
+      historyContainer.innerHTML = "";
+
+      const list = allTransactions.filter((tx) => {
+        if (currentFilter === "all") return true;
+        return tx.type === currentFilter;
+      });
+
+      if (!list.length) {
+        historyContainer.innerHTML =
+          "<p class='text-center text-gray-400 text-xs'>ยังไม่มีข้อมูลตามเงื่อนไขที่เลือก</p>";
+        return;
+      }
+
+      list.forEach((tx) => {
+        const txItem = document.createElement("div");
+        txItem.className =
+          "flex flex-col gap-1 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2";
+
+        const createdAt = tx.createdAt ? new Date(tx.createdAt) : null;
+        const formattedDate = createdAt
+          ? createdAt.toLocaleString("th-TH", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+          : "-";
+
+        let amountClass = "text-gray-600";
+        let amountText = `${Number(tx.amount || 0).toFixed(2)} THB`;
+        let typeLabel = "อื่น ๆ";
+        let typeClass = "bg-gray-200 text-gray-700";
+
+        if (tx.type === "deposit") {
+          amountClass = "text-green-600";
+          amountText = `+${amountText}`;
+          typeLabel = "ฝาก";
+          typeClass = "bg-emerald-50 text-emerald-700";
+        } else if (tx.type === "withdraw") {
+          amountClass = "text-red-600";
+          amountText = `-${amountText}`;
+          typeLabel = "ถอน";
+          typeClass = "bg-rose-50 text-rose-700";
+        } else if (tx.type === "lottery_purchase") {
+          amountClass = "text-amber-600";
+          amountText = `-${amountText}`;
+          typeLabel = "แทงหวย";
+          typeClass = "bg-amber-50 text-amber-700";
+        } else if (tx.type === "lottery_win") {
+          amountClass = "text-green-700";
+          amountText = `+${amountText}`;
+          typeLabel = "ถูกรางวัล";
+          typeClass = "bg-lime-50 text-lime-700";
+        }
+
+        let statusText = "รอดำเนินการ";
+        let statusClass = "text-amber-500";
+
+        if (
+          tx.status === "succeed" ||
+          tx.status === "approved" ||
+          tx.status === "success"
+        ) {
+          statusText = "สำเร็จ";
+          statusClass = "text-emerald-600";
+        } else if (tx.status === "rejected" || tx.status === "failed") {
+          statusText = "ถูกปฏิเสธ";
+          statusClass = "text-rose-600";
+        }
+
+        txItem.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500">${formattedDate}</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${typeClass}">
+              ${typeLabel}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500">จำนวน</span>
+            <span class="text-sm font-semibold ${amountClass}">
+              ${amountText}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500">สถานะ</span>
+            <span class="text-xs font-semibold ${statusClass}">
+              ${statusText}
+            </span>
+          </div>
+        `;
+
+        historyContainer.appendChild(txItem);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>INTL LOTTO — Admin Lottery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== RESET ===== */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Inter, sans-serif;
+      background: #071027;
+      color: #e6eef6;
+    }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: #060d1a;
+      border-right: 1px solid rgba(255,255,255,.06);
+      padding: 18px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .sidebar h3 {
+      margin: 0 0 16px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 10px;
+      border-radius: 10px;
+      color: #9aa4b2;
+      text-decoration: none;
+      margin-bottom: 6px;
+    }
+
+    .sidebar a:hover {
+      background: rgba(96,224,176,.12);
+      color: #60e0b0;
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      margin-left: 220px;
+      width: calc(100% - 220px);
+      min-height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      color: #9aa4b2;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: #0b1220;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px dashed rgba(255,255,255,.06);
+      text-align: left;
+    }
+
+    th {
+      color: #9aa4b2;
+      font-weight: 500;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .open {
+      background: #1e293b;
+    }
+
+    .closing {
+      background: #f59e0b;
+      color: #1f2937;
+    }
+
+    .drawn {
+      background: #0ea5e9;
+      color: #021018;
+    }
+
+    .settled {
+      background: #22c55e;
+      color: #021018;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>INTL LOTTO</h3>
+    <a href="/admin-users">ผู้ใช้</a>
+    <a href="/admin-lottery">หวย</a>
+    <a href="/admin-chat">แชท</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <h1>Admin — หวย</h1>
+
+    <!-- ✅ เหลือไว้แค่ subtitle ตามที่ต้องการ -->
+    <div class="subtitle">
+      งวดรายวัน (12 งวด) + เลขล่วงหน้า
+    </div>
+
+    <!-- DAILY ROUNDS -->
+    <div class="card">
+      <h3>งวดของวันนี้</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>งวด</th>
+            <th>เวลาออก</th>
+            <th>ผล 8 หลัก</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="dailyRounds">
+          <tr>
+            <td colspan="5">กำลังโหลด…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/admin-lottery.js"></script>
+
+<script>
+(function(){
+  const token = localStorage.getItem('token');
+  if(!token) return location.href='/';
+
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  if(payload.role !== 'admin'){
+    alert('Admin only');
+    location.href='/wallet';
+  }
+})();
+</script>
+
+</body>
+</html>

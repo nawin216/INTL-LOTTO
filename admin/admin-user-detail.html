@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — จัดการผู้ใช้</title>
+
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#6ee7b7;
+      --danger:#ff6b6b;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --text:#e6eef6;
+      --card-shadow: 0 8px 24px rgba(2,6,23,0.6);
+      --radius:12px;
+      --gap:18px;
+      --max-width:1100px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #071029 0%, #081427 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{
+      max-width:var(--max-width);
+      margin:32px auto;
+      padding:20px;
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    header h1{
+      margin:0;
+      font-size:20px;
+      font-weight:600;
+      letter-spacing:0.2px;
+    }
+    header a{
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+      background:transparent;
+      border-radius:8px;
+      padding:8px 12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:var(--gap);
+      align-items:start;
+    }
+
+    /* single-column on small screens */
+    @media (max-width:980px){
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: var(--card-shadow);
+      border:1px solid var(--glass-2);
+    }
+
+    /* left column area */
+    .left .card + .card { margin-top:12px; }
+
+.sidebar .card {
+  position: static;
+}
+
+    .muted { color:var(--muted); font-size:13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    /* user summary */
+    .user-meta { display:flex; flex-direction:column; gap:6px; }
+    .user-meta .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .user-meta strong { color:var(--muted); font-weight:600; font-size:13px; min-width:110px; display:inline-block; }
+
+    /* inputs & buttons */
+    input[type="number"], input[type="text"], textarea, select {
+      width:100%;
+      padding:10px 12px;
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.04);
+      color:var(--text);
+      border-radius:8px;
+      outline:none;
+      box-sizing:border-box;
+      font-size:14px;
+    }
+    textarea { min-height:88px; resize:vertical; }
+
+    .row-inline { display:flex; gap:8px; align-items:center; }
+    .row-inline > * { flex:1 1 0; min-width:0; }
+
+    .btn {
+      background: linear-gradient(90deg, rgba(110,231,183,0.15), rgba(110,231,183,0.08));
+      color:var(--accent);
+      border:1px solid rgba(110,231,183,0.12);
+      padding:8px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      transition: transform .08s ease, box-shadow .08s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(14,35,40,0.4); }
+
+    .btn-ghost {
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .btn-danger {
+      background: linear-gradient(90deg, rgba(255,107,107,0.08), rgba(255,107,107,0.04));
+      color:var(--danger);
+      border:1px solid rgba(255,107,107,0.12);
+    }
+
+    .small { font-size:13px; padding:6px 10px; border-radius:8px; }
+
+    /* table */
+    table.table {
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      font-size:14px;
+    }
+    table.table thead th {
+      text-align:left;
+      padding:10px 12px;
+      font-size:13px;
+      color:var(--muted);
+      border-bottom:1px solid rgba(255,255,255,0.03);
+    }
+    table.table tbody td {
+      padding:10px 12px;
+      border-bottom:1px dashed rgba(255,255,255,0.03);
+      vertical-align:middle;
+    }
+    .status-pill {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 8px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:600;
+    }
+    .status-pill.good { background: rgba(110,231,183,0.06); color:var(--accent); border:1px solid rgba(110,231,183,0.06); }
+    .status-pill.bad  { background: rgba(255,107,107,0.04); color:var(--danger); border:1px solid rgba(255,107,107,0.04); }
+
+    /* toast */
+    #toast {
+      position:fixed;
+      right:20px;
+      bottom:20px;
+      min-width:180px;
+      padding:10px 14px;
+      border-radius:10px;
+      display:none;
+      z-index:9999;
+      box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+      background: rgba(10,14,22,0.9);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .toast.success { border-color: rgba(110,231,183,0.12); color:var(--accent); }
+    .toast.error { border-color: rgba(255,107,107,0.12); color:var(--danger); }
+
+    /* small helpers */
+    .muted-box { background: rgba(255,255,255,0.02); padding:10px;border-radius:8px;color:var(--muted); }
+    .box { padding:12px; border-radius:8px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); }
+    .flex { display:flex; gap:10px; align-items:center; }
+    .stack { display:flex; flex-direction:column; gap:10px; }
+
+    /* link-button style for back link */
+    .link-back { color:var(--muted); text-decoration:none; font-weight:600; display:inline-flex; gap:8px; align-items:center; }
+    .link-back:hover { color:var(--accent); }
+
+    /* responsive adjustments */
+    @media (max-width:600px){
+      header h1{ font-size:16px; }
+      .card { padding:14px; }
+      .grid { gap:12px; }
+      .container { padding:14px; margin:18px auto; }
+    }
+
+    /* notification form layout fixes */
+.notify-row select,
+.notify-row input {
+  min-height:40px;
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.04);
+  background:transparent;
+  color:inherit;
+  box-sizing:border-box;
+}
+.notify-row select { z-index: 30; appearance: auto; -webkit-appearance: auto; }
+.notify-row input::placeholder,
+textarea::placeholder { color: rgba(255,255,255,0.35); }
+.notify-form .btn,
+.notify-form .btn-ghost { min-width:120px; }
+.notify-row { position: relative; z-index: 2; }
+.notify-row select { position: relative; z-index: 40; }
+@media (max-width:720px){
+  .notify-row { flex-direction:column; align-items:stretch; }
+  .notify-row input[id="notifLinkInput"] { max-width:100%; }
+}
+
+/* ===== Notification select & inputs (improved) ===== */
+.notify-row select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  height: 44px;
+  font-weight: 600;
+}
+
+.notify-row select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(110,231,183,0.15);
+}
+
+.notify-row option {
+  background: #0b1220;
+  color: #e6eef6;
+}
+
+/* inputs same height */
+.notify-row input {
+  height: 44px;
+}
+
+/* textarea */
+#notifMessageInput {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+#notifMessageInput:focus {
+  border-color: var(--accent);
+}
+
+/* ===== Buttons ===== */
+.btn-success {
+  background: linear-gradient(90deg, rgba(34,197,94,0.25), rgba(34,197,94,0.15));
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.35);
+}
+.btn-success:hover {
+  box-shadow: 0 6px 18px rgba(34,197,94,0.35);
+}
+
+.btn-danger-strong {
+  background: linear-gradient(90deg, rgba(239,68,68,0.25), rgba(239,68,68,0.15));
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.35);
+}
+.btn-danger-strong:hover {
+  box-shadow: 0 6px 18px rgba(239,68,68,0.35);
+}
+
+/* small action buttons in table */
+.btn-xs {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* ===== Back Button (Admin) ===== */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.03)
+  );
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.btn-back .arrow {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.btn-back:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(110,231,183,0.18),
+    rgba(110,231,183,0.08)
+  );
+  color: var(--accent);
+  border-color: rgba(110,231,183,0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(14,35,40,0.35);
+}
+
+.btn-back:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ===== Status colors ===== */
+.status-text {
+  font-weight: 600;
+}
+
+.status-approved {
+  color: #4ade80; /* เขียว */
+}
+
+.status-pending {
+  color: #facc15; /* เหลือง */
+}
+
+.status-rejected {
+  color: #f87171; /* แดง */
+}
+
+  </style>
+
+  <script type="module" src="/js/admin-users/detail.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Admin • จัดการผู้ใช้</h1>
+        <div class="muted" style="margin-top:6px;font-size:13px;">แดชบอร์ดผู้ดูแลระบบ — จัดการข้อมูลผู้ใช้และคำขอ</div>
+      </div>
+      <div>
+        <button class="btn-back" onclick="history.back()">
+  <span class="arrow">←</span>
+  <span>กลับไปยังรายชื่อผู้ใช้</span>
+</button>
+      </div>
+    </header>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="grid">
+      <!-- left: main content -->
+      <div class="left">
+        <section class="card user-meta">
+          <h2 style="margin:0 0 8px 0;">ข้อมูลผู้ใช้</h2>
+          <div class="row"><strong>อีเมล</strong><span id="detailEmail">-</span></div>
+          <div class="row"><strong>UID</strong><span id="detailUid">-</span></div>
+          <div class="row"><strong>ObjectId</strong><span id="detailId">-</span></div>
+          <div class="row"><strong>สมัครเมื่อ</strong><span id="detailCreatedAt">-</span></div>
+          <div class="row"><strong>ยอดรวม</strong><span>ฝาก: <span id="detailTotalDeposits">0</span> · ถอน: <span id="detailTotalWithdrawals">0</span></span></div>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">ยอดเงิน</h3>
+          <div class="row-inline">
+            <input id="detailBalanceInput" type="number" step="0.01" />
+            <button id="saveBalanceBtn" class="btn small">บันทึกยอด</button>
+          </div>
+          <div style="height:10px"></div>
+          <div class="row-inline">
+            <input id="detailTopupInput" type="number" placeholder="+ เติมยอด" />
+            <button id="topupBtn" class="btn small">เติมเงิน</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">ตั้ง % การจ่าย (override รายคน)</h3>
+          <div class="muted" id="payoutInfoText">-</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;">
+            <label style="display:flex;flex-direction:column;font-size:13px;"><span class="muted">2 ตัว</span><input id="payout2Input" type="number" /></label>
+            <label style="display:flex;flex-direction:column;font-size:13px;"><span class="muted">3 ตัว</span><input id="payout3Input" type="number" /></label>
+            <label style="display:flex;flex-direction:column;font-size:13px;"><span class="muted">4 ตัว</span><input id="payout4Input" type="number" /></label>
+            <label style="display:flex;flex-direction:column;font-size:13px;"><span class="muted">8 ตัว</span><input id="payout8Input" type="number" /></label>
+            <div style="flex:1 1 140px;display:flex;align-items:center;">
+              <button id="savePayoutsBtn" class="btn small">บันทึก %</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">คำขอฝาก</h3>
+          <div style="margin-bottom:8px;">ผู้ใช้: <strong id="userDepositsUserLabel">-</strong></div>
+          <table class="table">
+            <thead>
+              <tr><th>เวลา</th><th>จำนวน</th><th>สถานะ</th><th>สลิป</th><th>หมายเหตุ</th><th>จัดการ</th></tr>
+            </thead>
+            <tbody id="admin-user-deposits-body"><tr><td colspan="6" class="muted">ยังไม่ได้โหลด</td></tr></tbody>
+          </table>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">คำขอถอน</h3>
+          <div style="margin-bottom:8px;">ผู้ใช้: <strong id="userWithdrawUserLabel">-</strong></div>
+          <table class="table">
+            <thead>
+              <tr><th>เวลา</th><th>จำนวน</th><th>สถานะ</th><th>เครือข่าย</th><th>address</th><th>หมายเหตุ</th><th>จัดการ</th></tr>
+            </thead>
+            <tbody id="admin-user-withdrawals-body"><tr><td colspan="7" class="muted">ยังไม่ได้โหลด</td></tr></tbody>
+          </table>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">ประวัติธุรกรรม</h3>
+          <div id="txBox" class="box muted">คลิก "โหลดประวัติ" เพื่อดู</div>
+          <div style="margin-top:8px;"><button id="loadTxBtn" class="btn small">โหลดประวัติ</button></div>
+        </section>
+
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">บิลหวย</h3>
+          <div id="ticketBox" class="box muted">คลิก "โหลดบิล" เพื่อดู</div>
+          <div style="margin-top:8px;"><button id="loadTicketsBtn" class="btn small">โหลดบิล</button></div>
+        </section>
+
+      </div>
+
+      <!-- right: sidebar -->
+      <aside class="sidebar">
+        <section class="card">
+          <h3 style="margin:0 0 8px 0;">สิทธิฝาก / ถอน</h3>
+          <div class="stack">
+            <label><input id="flagDeposit" type="checkbox" /> <span id="textDepositFlag">อนุญาตให้ฝาก</span></label>
+            <label><input id="flagWithdraw" type="checkbox" /> <span id="textWithdrawFlag">อนุญาตให้ถอน</span></label>
+            <div style="margin-top:8px;"><button id="saveFlagsBtn" class="btn small">บันทึกสถานะ</button></div>
+          </div>
+        </section>
+
+        <section class="card" id="notifyCard">
+  <h3 style="margin:0 0 10px 0;">ส่งแจ้งเตือนถึงผู้ใช้</h3>
+
+  <div class="notify-form stack">
+    <div class="notify-row flex">
+      <select id="notifTypeInput">
+        <option value="system">🔧 ระบบ</option>
+        <option value="info">ℹ️ ข้อมูล</option>
+        <option value="deposit">✅ ฝากเงิน</option>
+        <option value="withdraw">🔺 ถอนเงิน</option>
+        <option value="lottery">🎰 หวย</option>
+        <option value="bonus">🎁 โบนัส</option>
+      </select>
+
+      <input id="notifTitleInput" type="text" placeholder="หัวข้อแจ้งเตือน" />
+    </div>
+
+    <input
+      id="notifLinkInput"
+      type="text"
+      placeholder="ลิงก์ (เช่น /wallet หรือ URL เต็ม)"
+    />
+
+    <textarea
+      id="notifMessageInput"
+      placeholder="ข้อความแจ้งเตือนถึงผู้ใช้"
+    ></textarea>
+
+    <div class="flex">
+      <button id="sendNotifBtn" class="btn btn-success">
+         ส่งแจ้งเตือน
+      </button>
+      <button id="clearNotifBtn" class="btn btn-ghost">
+        ล้างฟอร์ม
+      </button>
+    </div>
+
+    <div class="muted" style="font-size:13px;">
+      • จำเป็นต้องกรอกหัวข้อและข้อความ<br/>
+      • ลิงก์สามารถใช้ <code>/wallet</code> หรือ URL เต็ม
+    </div>
+  </div>
+</section>
+
+
+        <section class="card muted-box">
+          <div style="font-size:13px;color:var(--muted)"><strong>หมายเหตุ</strong></div>
+          <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+            • ใส่ค่าว่างหรือลบเพื่อใช้ค่าจากค่าเริ่มต้น<br/>
+            • ปรับ % เป็นตัวเลข (unit ตามระบบของคุณ)<br/>
+            • การอนุมัติฝากจะเพิ่มยอดให้ผู้ใช้โดยอัตโนมัติ
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <footer style="margin-top:22px;text-align:center;color:var(--muted);font-size:13px;">
+      Admin panel • ระบบจัดการ
+    </footer>
+  </div>
+</body>
+</html>

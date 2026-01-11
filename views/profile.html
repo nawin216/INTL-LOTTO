@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>โปรไฟล์ — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Prompt', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(180deg, #e0f2fe 0%, #f3f4f6 40%, #f9fafb 100%);
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      max-width: 520px;
+      margin: 16px auto 40px;
+      padding: 0 16px 24px;
+    }
+
+    .profile-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 24px rgba(148,163,184,0.28);
+      border: 1px solid #e5e7eb;
+    }
+
+    /* avatar & uid */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .avatar-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 25% 0,#e0f2fe,#0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(22, 108, 245, 0.45);
+      flex-shrink: 0;
+    }
+
+    .avatar-circle i {
+      font-size: 28px;
+    }
+
+    .uid-block {
+      flex: 1;
+    }
+
+    .uid-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+
+    .uid-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      font-size: 13px;
+      color: #1d4ed8;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .uid-text {
+      font-weight: 600;
+    }
+
+    .uid-copy-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      color: inherit;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .uid-copy-btn i {
+      font-size: 11px;
+    }
+
+    /* action buttons */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin: 14px 0 4px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 9px 0;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-withdraw {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0369a1;
+    }
+
+    .btn-withdraw:hover {
+      background: #eff6ff;
+      border-color: #60a5fa;
+    }
+
+    .btn-deposit {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: #ffffff;
+      box-shadow: 0 6px 14px rgba(14,165,233,0.5);
+    }
+
+    .btn-deposit:hover {
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+
+    .action-btn i {
+      font-size: 13px;
+    }
+
+    /* section title */
+    .section-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 14px 0 6px;
+    }
+
+    /* info row */
+    .info-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 4px 10px;
+    }
+
+    .info-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #eff6ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0ea5e9;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #111827;
+      word-break: break-all;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 10px 0 6px;
+    }
+
+    /* menu list */
+    .menu-list {
+      margin-top: 2px;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 8px 6px;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .menu-item:hover {
+      background: #f3f4f6;
+    }
+
+    .menu-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .menu-text {
+      flex: 1;
+      font-size: 14px;
+      color: #111827;
+    }
+
+    .menu-chevron {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .menu-item.danger {
+      background: #fef2f2;
+      margin-top: 4px;
+    }
+
+    .menu-item.danger:hover {
+      background: #fee2e2;
+    }
+
+    .menu-item.danger .menu-icon {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .menu-item.danger .menu-text {
+      color: #b91c1c;
+      font-weight: 500;
+    }
+
+    /* bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0 4px;
+      z-index: 50;
+    }
+
+    .bottom-nav .nav-item {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      color: #9ca3af;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .bottom-nav .nav-item i {
+      font-size: 18px;
+    }
+
+    .bottom-nav .nav-item.active {
+      color: #0ea5e9;
+    }
+
+    .bottom-nav .nav-item.active i {
+      color: #0ea5e9;
+    }
+
+    .page-bottom-space {
+      height: 56px;
+    }
+
+    @media (max-width: 480px) {
+      .page-wrapper { padding: 0 12px 24px; }
+      .profile-card { padding: 16px 16px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <img src="/images/intl-lotto-logo1.png" alt="INTL LOTTO">
+      </div>
+
+      <div class="topbar-actions">
+        <button onclick="openNotifications()" class="notif-btn">
+          <i class="fas fa-bell"></i>
+          <span id="notif-dot" class="notif-dot hidden"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="page-wrapper">
+      <div class="profile-card">
+
+        <!-- header -->
+        <div class="profile-header">
+          <div class="avatar-circle">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="uid-block">
+            <div class="uid-label">ไอดีผู้ใช้</div>
+            <div class="uid-row">
+              <span id="user-id" class="uid-text"># กำลังโหลด...</span>
+              <button class="uid-copy-btn" type="button" onclick="copyUserId()">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- actions -->
+        <div class="action-row">
+          <button class="action-btn btn-withdraw" onclick="window.location.href='/withdraw'">
+            <i class="fas fa-arrow-up"></i>
+            <span>ถอนเงิน</span>
+          </button>
+          <button class="action-btn btn-deposit" onclick="window.location.href='/deposit'">
+            <i class="fas fa-arrow-down"></i>
+            <span>ฝากเงิน</span>
+          </button>
+        </div>
+
+        <!-- account info -->
+        <div class="section-title">ข้อมูลบัญชี</div>
+        <div class="info-row">
+          <div class="info-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div>
+            <div class="info-label">อีเมล</div>
+            <div id="email" class="info-value">กำลังโหลด...</div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- menu -->
+        <div class="menu-list">
+          <button class="menu-item" onclick="window.location.href='/personal-info'">
+            <div class="menu-icon">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <span class="menu-text">ข้อมูลส่วนตัว</span>
+            <i class="fas fa-chevron-right menu-chevron"></i>
+          </button>
+
+          <button class="menu-item" onclick="contactSupport()">
+            <div class="menu-icon">
+              <i class="fas fa-comments"></i>
+            </div>
+            <span class="menu-text">ติดต่อเจ้าหน้าที่</span>
+            <i class="fas fa-chevron-right menu-chevron"></i>
+          </button>
+
+          <button class="menu-item" onclick="window.location.href='/transaction-history'">
+            <div class="menu-icon">
+              <i class="fas fa-history"></i>
+            </div>
+            <span class="menu-text">ประวัติยอดคงเหลือ</span>
+            <i class="fas fa-chevron-right menu-chevron"></i>
+          </button>
+
+          <button class="menu-item danger" onclick="logout()">
+            <div class="menu-icon">
+              <i class="fas fa-sign-out-alt"></i>
+            </div>
+            <span class="menu-text">ออกจากระบบ</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- bottom nav -->
+  <div class="page-bottom-space"></div>
+
+  <div class="bottom-nav">
+    <a href="/lottery" class="nav-item">
+      <i class="fas fa-ticket-alt"></i>
+      <span>ซื้อหวย</span>
+    </a>
+    <a href="/wallet" class="nav-item">
+      <i class="fas fa-wallet"></i>
+      <span>กระเป๋าเงิน</span>
+    </a>
+    <a href="/profile" class="nav-item active">
+      <i class="fas fa-user"></i>
+      <span>โปรไฟล์</span>
+    </a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", updateProfile);
+
+    async function updateProfile() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบก่อน!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/profile", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error("ไม่สามารถโหลดข้อมูลผู้ใช้ได้");
+
+        const data = await response.json();
+
+        document.getElementById("user-id").innerText = `#${data.uid || "ไม่พบข้อมูล"}`;
+        document.getElementById("email").innerText = data.email || "ไม่พบข้อมูล";
+
+        if (data.uid) {
+          localStorage.setItem("userID", data.uid);
+        }
+
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        document.getElementById("user-id").innerText = "#โหลดข้อมูลผิดพลาด";
+        document.getElementById("email").innerText = "โหลดข้อมูลผิดพลาด";
+      }
+    }
+
+    function copyUserId() {
+      const userIdText = document.getElementById("user-id").innerText;
+      const cleanId = userIdText.replace("#", "").trim();
+      navigator.clipboard.writeText(cleanId);
+      alert("คัดลอกไอดีผู้ใช้แล้ว: " + cleanId);
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userID");
+      window.location.href = "index.html";
+    }
+
+    // ✅ ปรับให้ไปหน้า lottery-chat ภายในระบบเราเอง
+    function contactSupport() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("❌ กรุณาล็อกอินก่อนติดต่อเจ้าหน้าที่");
+        window.location.href = "index.html";
+        return;
+      }
+      // ถ้ามี route ใน index.js แบบ:
+      // app.get("/lottery-chat", ...)
+      window.location.href = "/lottery-chat";
+      // หรือถ้าคุณเสิร์ฟไฟล์เป็น .html ตรง ๆ ให้ใช้:
+      // window.location.href = "/lottery-chat.html";
+    }
+
+    function openNotifications() {
+      window.location.href = "/notifications";
+    }
+
+    document.addEventListener("DOMContentLoaded", checkNotifications);
+
+    window.addEventListener("pageshow", () => {
+      checkNotifications();
+    });
+
+    async function checkNotifications() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch("/api/notifications/unread-count", {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const data = await res.json();
+
+        const dot = document.getElementById("notif-dot");
+        if (!dot) return;
+
+        const unread = data.count || 0;
+
+        if (unread > 0) {
+          dot.classList.remove("hidden");
+        } else {
+          dot.classList.add("hidden");
+        }
+      } catch (err) {
+        console.error("noti check error", err);
+      }
+    }
+
+  </script>
+
+  <script>
+  let lastBalance = null;
+  let lastHasNotification = null;
+
+  async function refreshState() {
+    try {
+      const res = await fetch("/api/state", {
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      /* =====================
+         💰 ยอดเงิน
+      ===================== */
+      if (typeof data.balance === "number" && data.balance !== lastBalance) {
+        lastBalance = data.balance;
+        const balanceEl = document.getElementById("balance");
+        if (balanceEl) {
+          balanceEl.innerText = data.balance.toLocaleString();
+        }
+      }
+
+      /* =====================
+         🔔 จุดแดงแจ้งเตือน
+      ===================== */
+      if (typeof data.hasNotification === "boolean" &&
+          data.hasNotification !== lastHasNotification) {
+
+        lastHasNotification = data.hasNotification;
+        const dot = document.getElementById("notif-dot");
+
+        if (dot) {
+          if (data.hasNotification) {
+            dot.classList.remove("hidden");
+          } else {
+            dot.classList.add("hidden");
+          }
+        }
+      }
+
+    } catch (err) {
+      console.error("refreshState error:", err);
+    }
+  }
+
+  // เรียกทันทีเมื่อเปิดหน้า
+  refreshState();
+
+  // เรียกซ้ำทุก 2 วินาที
+  setInterval(refreshState, 2000);
+</script>
+
+
+</body>
+</html>

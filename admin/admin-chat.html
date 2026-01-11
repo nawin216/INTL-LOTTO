@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>INTL LOTTO — Admin Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" />
+
+  <style>
+    :root{
+      --bg:#071027;
+      --bg-soft:#0b1430;
+      --card:#0b1220;
+      --border:rgba(255,255,255,.06);
+      --text:#e6eef6;
+      --muted:#9aa4b2;
+      --accent:#60e0b0;
+      --blue:#38bdf8;
+      --danger:#ff6b6b;
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui;
+      background:linear-gradient(180deg,#06121f,#071027);
+      color:var(--text);
+      height:100vh;
+      overflow:hidden;
+    }
+    a{text-decoration:none;color:inherit}
+
+    /* ===== LAYOUT ===== */
+    .layout{display:flex;height:100vh}
+
+    /* ===== Sidebar ===== */
+    .sidebar{
+      position:fixed;
+      top:0; left:0;
+      width:220px;
+      height:100vh;
+      background:linear-gradient(180deg,#071427,#060d1a);
+      border-right:1px solid var(--border);
+      padding:18px 14px;
+    }
+    .sidebar h2{
+      margin:0 0 18px;
+      font-size:16px;
+      font-weight:700;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .nav a:hover,
+    .nav a.active{
+      background:rgba(96,224,176,.12);
+      color:var(--accent);
+    }
+
+    /* ===== MAIN ===== */
+    .main{
+      margin-left:220px;
+      flex:1;
+      display:flex;
+      height:100vh;
+      overflow:hidden;
+    }
+
+    /* ===== ROOM LIST ===== */
+    .room-list{
+      width:260px;
+      border-right:1px solid var(--border);
+      background:linear-gradient(180deg,#0b1430,#0a1226);
+      display:flex;
+      flex-direction:column;
+    }
+    .room-list-header{
+      padding:12px;
+      font-size:12px;
+      font-weight:600;
+      color:var(--muted);
+      border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .room-item{
+      padding:10px 12px;
+      cursor:pointer;
+      border-bottom:1px solid var(--border);
+    }
+    .room-item.active{
+      background:rgba(96,224,176,.12);
+    }
+    .room-item:hover{
+      background:rgba(255,255,255,.04);
+    }
+
+    /* ===== CHAT PANEL ===== */
+    .chat-panel{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background:var(--bg-soft);
+    }
+    .chat-header{
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+    }
+    .chat-title{
+      font-size:14px;
+      font-weight:600;
+    }
+    .chat-sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    #admin-chat-box{
+      flex:1;
+      overflow-y:auto;
+      padding:14px;
+    }
+
+    .msg-bubble{
+      max-width:70%;
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:15px;
+      margin-bottom:8px;
+      word-break:break-word;
+    }
+    .msg-user{
+      background:rgba(56,189,248,.15);
+      margin-right:auto;
+      border-bottom-left-radius:4px;
+    }
+    .msg-admin{
+      background:rgba(96,224,176,.25);
+      color:#ffffff;
+      margin-left:auto;
+      border-bottom-right-radius:4px;
+    }
+    .msg-time{
+      font-size:10px;
+      opacity:.6;
+      margin-top:2px;
+      text-align:right;
+    }
+    .img-msg{
+      max-width:180px;
+      max-height:180px;
+      border-radius:10px;
+      display:block;
+      margin-top:4px;
+    }
+
+    /* ===== INPUT ===== */
+    .chat-input{
+      display:flex;
+      gap:8px;
+      padding:10px;
+      border-top:1px solid var(--border);
+      background:#0b1220;
+    }
+    .chat-input input[type="text"]{
+      flex:1;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--text);
+    }
+    .chat-input button{
+      border-radius:999px;
+      padding:8px 14px;
+      border:0;
+      cursor:pointer;
+      font-weight:600;
+      background:linear-gradient(90deg,#38bdf8,#60e0b0);
+      color:#03131a;
+    }
+
+    /* ===== FIX CHAT INPUT FOR MOBILE ===== */
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* กล่องข้อความ */
+#admin-chat-box {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 90px; /* กัน input */
+}
+
+/* แถบพิมพ์ */
+.chat-input-bar {
+  position: sticky;
+  bottom: 0;
+  background: #0b1220;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  /* 🔥 สำคัญมากสำหรับมือถือ */
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+
+
+
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+  <h2>INTL LOTTO</h2>
+  <nav class="nav">
+  <a href="/admin-users">ผู้ใช้</a>
+  <a href="/admin-lottery">หวย</a>
+  <a href="/admin-chat">แชท</a>
+</nav>
+</aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ROOM LIST -->
+    <aside class="room-list">
+      <div class="room-list-header">
+        ห้องแชทลูกค้า
+        <button onclick="loadRooms()" style="background:none;border:0;color:var(--muted)">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+      </div>
+      <div id="room-list-body" style="flex:1;overflow-y:auto;font-size:12px">
+        <div style="padding:12px;color:var(--muted)">กำลังโหลด...</div>
+      </div>
+    </aside>
+
+    <!-- CHAT PANEL -->
+    <section class="chat-panel">
+      <div class="chat-header">
+        <div id="active-room-title" class="chat-title">เลือกห้องแชท</div>
+        <div id="active-room-sub" class="chat-sub">UID / Email</div>
+      </div>
+
+      <div id="admin-chat-box"></div>
+
+      <div class="chat-input">
+        <label style="cursor:pointer;color:var(--blue)">
+          <i class="fa-regular fa-image"></i>
+          <input id="admin-image-input" type="file" accept="image/*" hidden>
+        </label>
+        <input id="admin-msg-input" type="text" placeholder="พิมพ์ข้อความ..." />
+        <button id="admin-send-btn">ส่ง</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/admin-chat.js"></script>
+<script>
+(function () {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('กรุณาเข้าสู่ระบบ');
+    window.location.href = '/index.html';
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.role !== 'admin') {
+      alert('หน้านี้สำหรับแอดมินเท่านั้น');
+      window.location.href = '/wallet';
+    }
+  } catch (e) {
+    localStorage.removeItem('token');
+    window.location.href = '/index.html';
+  }
+})();
+</script>
+
+</body>
+</html>

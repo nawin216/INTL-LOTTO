@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="manifest" href="/manifest.json">
+  <title>Sign In - INTL LOTTO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon / Logo -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Prompt&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Flaticon UIcons for eye icon -->
+  <link
+    rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css"
+  />
+
+  <!-- JWT Decode -->
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #e0e0e0;
+      font-family: "Prompt", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 380px;
+      padding: 20px 20px 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+    }
+
+    /* ---------- language switch (single button + dropdown) ---------- */
+    .lang-switch {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+    }
+
+    .lang-current {
+      border: 1px solid #bdbdbd;
+      background: #ffffff;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .lang-current img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .lang-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      padding: 6px 0;
+      min-width: 130px;
+      z-index: 20;
+      display: none;
+    }
+
+    .lang-menu.open {
+      display: block;
+    }
+
+    .lang-option {
+      border: none;
+      background: transparent;
+      width: 100%;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .lang-option img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .lang-option span.code {
+      font-weight: 600;
+      color: #424242;
+    }
+
+    .lang-option span.name {
+      color: #616161;
+    }
+
+    .lang-option:hover {
+      background: #e3f2fd;
+    }
+
+    .lang-option.active {
+      background: #bbdefb;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 8px;
+      margin-top: 10px;
+    }
+
+    h2 {
+      color: #29b6f6;
+      margin: 8px 0 16px;
+      font-size: 22px;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 10px 0;
+      width: 100%;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px 40px 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #cccccc;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #29b6f6;
+      box-shadow: 0 0 0 2px rgba(41, 182, 246, 0.2);
+    }
+
+    .eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #757575;
+      font-size: 18px;
+    }
+
+    button.main-btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #29b6f6;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button.main-btn:hover {
+      background: #039be5;
+    }
+
+    button.main-btn:active {
+      transform: scale(0.98);
+    }
+
+    .message {
+      margin-top: 8px;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .message.error {
+      color: #e53935;
+    }
+
+    .message.success {
+      color: #43a047;
+    }
+
+    .switch {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .switch span,
+    .switch a {
+      font-size: 14px;
+    }
+
+    .switch a {
+      color: #29b6f6;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .switch a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 18px 14px 22px;
+        border-radius: 12px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .input-group input {
+        font-size: 14px;
+      }
+
+      button.main-btn {
+        font-size: 14px;
+        padding: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Language switch: current flag + dropdown -->
+    <div class="lang-switch">
+      <button class="lang-current" id="langCurrentBtn" type="button">
+        <img src="/images/flags/en.png" alt="EN" id="langCurrentImg" />
+      </button>
+
+      <div class="lang-menu" id="langMenu">
+        <button class="lang-option" data-lang="en" type="button">
+          <img src="/images/flags/en.png" alt="EN" />
+          <span class="code">EN</span>
+          <span class="name">English</span>
+        </button>
+        <button class="lang-option" data-lang="th" type="button">
+          <img src="/images/flags/th.png" alt="TH" />
+          <span class="code">TH</span>
+          <span class="name">ไทย</span>
+        </button>
+        <button class="lang-option" data-lang="zh" type="button">
+          <img src="/images/flags/zh.png" alt="ZH" />
+          <span class="code">ZH</span>
+          <span class="name">中文</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Logo -->
+    <img src="/images/intl-lotto-logo.png" alt="INTL LOTTO Logo" class="logo" />
+
+    <!-- ===== Register form ===== -->
+    <div id="registerForm">
+      <h2 data-i18n="registerTitle">Sign Up</h2>
+
+      <div class="input-group">
+        <input
+          type="email"
+          id="regEmail"
+          data-i18n-placeholder="email"
+          placeholder="Email"
+        />
+      </div>
+
+      <div class="input-group">
+        <input
+          type="password"
+          id="regPassword"
+          data-i18n-placeholder="password"
+          placeholder="Password"
+        />
+        <i
+          class="fi fi-rr-eye-crossed eye"
+          onclick="togglePassword('regPassword', this)"
+        ></i>
+      </div>
+
+      <div class="input-group">
+        <input
+          type="password"
+          id="regPasswordConfirm"
+          data-i18n-placeholder="passwordConfirm"
+          placeholder="Confirm Password"
+        />
+        <i
+          class="fi fi-rr-eye-crossed eye"
+          onclick="togglePassword('regPasswordConfirm', this)"
+        ></i>
+      </div>
+
+      <button
+        type="button"
+        class="main-btn"
+        onclick="register()"
+        data-i18n="registerButton"
+      >
+        Sign Up
+      </button>
+
+      <div id="registerMessage" class="message"></div>
+
+      <div class="switch">
+        <span data-i18n="haveAccount">Already have an account?</span>
+        <a onclick="showLogin()" data-i18n="switchToLogin">Sign In</a>
+      </div>
+    </div>
+
+    <!-- ===== Login form ===== -->
+    <div id="loginForm" class="hidden">
+      <h2 data-i18n="loginTitle">Sign In</h2>
+
+      <div class="input-group">
+        <input
+          type="email"
+          id="loginEmail"
+          data-i18n-placeholder="email"
+          placeholder="Email"
+        />
+      </div>
+
+      <div class="input-group">
+        <input
+          type="password"
+          id="loginPassword"
+          data-i18n-placeholder="password"
+          placeholder="Password"
+        />
+        <i
+          class="fi fi-rr-eye-crossed eye"
+          onclick="togglePassword('loginPassword', this)"
+        ></i>
+      </div>
+
+      <button
+        type="button"
+        class="main-btn"
+        onclick="login()"
+        data-i18n="loginButton"
+      >
+        Sign In
+      </button>
+
+      <div id="loginMessage" class="message"></div>
+
+      <div class="switch">
+        <span data-i18n="noAccount">Don’t have an account?</span>
+        <a onclick="showRegister()" data-i18n="switchToRegister">Sign Up</a>
+        <br />
+        <small>
+          <div style="margin-top:8px;">
+             <a href="/reset-password" data-i18n="forgotPassword">Forgot password?</a>
+             </div>
+
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "/api/auth";
+
+    // ---------- i18n dictionary ----------
+    const i18n = {
+      th: {
+        loginTitle: "เข้าสู่ระบบ",
+        registerTitle: "สมัครสมาชิก",
+        email: "อีเมล",
+        password: "รหัสผ่าน",
+        passwordConfirm: "ยืนยันรหัสผ่าน",
+        loginButton: "เข้าสู่ระบบ",
+        registerButton: "สมัครสมาชิก",
+        haveAccount: "มีบัญชีอยู่แล้ว?",
+        noAccount: "ยังไม่มีบัญชี?",
+        forgotPassword: "ลืมรหัสผ่าน?",
+        switchToLogin: "เข้าสู่ระบบ",
+        switchToRegister: "สมัครสมาชิก",
+        fillAllFields: "กรุณากรอกข้อมูลให้ครบ",
+        passwordMismatch: "รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน",
+        registerSuccess: "สมัครสมาชิกสำเร็จ! กำลังไปหน้าล็อกอิน...",
+        registerFail: "สมัครไม่สำเร็จ",
+        loginSuccess: "เข้าสู่ระบบสำเร็จ!",
+        loginFail: "เข้าสู่ระบบไม่สำเร็จ",
+        genericError: "เกิดข้อผิดพลาด"
+      },
+
+      zh: {
+        loginTitle: "登录",
+        registerTitle: "注册账户",
+        email: "邮箱",
+        password: "密码",
+        passwordConfirm: "确认密码",
+        loginButton: "登录",
+        registerButton: "注册",
+        haveAccount: "已经有账户？",
+        noAccount: "还没有账户？",
+        forgotPassword: "忘记密码？",
+        switchToLogin: "登录",
+        switchToRegister: "注册账户",
+        fillAllFields: "请填写所有必填信息",
+        passwordMismatch: "两次输入的密码不一致",
+        registerSuccess: "注册成功！正在跳转到登录页面...",
+        registerFail: "注册失败",
+        loginSuccess: "登录成功！",
+        loginFail: "登录失败",
+        genericError: "发生错误"
+      },
+
+      en: {
+        loginTitle: "Sign In",
+        registerTitle: "Sign Up",
+        email: "Email",
+        password: "Password",
+        passwordConfirm: "Confirm Password",
+        loginButton: "Sign In",
+        registerButton: "Sign Up",
+        haveAccount: "Already have an account?",
+        noAccount: "Don’t have an account?",
+        forgotPassword: "Forgot password?",
+        switchToLogin: "Sign In",
+        switchToRegister: "Sign Up",
+        fillAllFields: "Please fill in all fields",
+        passwordMismatch: "Passwords do not match",
+        registerSuccess: "Registration successful! Redirecting to login...",
+        registerFail: "Registration failed",
+        loginSuccess: "Logged in successfully!",
+        loginFail: "Login failed",
+        genericError: "An error occurred"
+      }
+    };
+
+    let currentLang = "en";
+
+    function t(key) {
+      return (i18n[currentLang] && i18n[currentLang][key]) || key;
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        el.textContent = t(key);
+      });
+
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        el.placeholder = t(key);
+      });
+    }
+
+    function updateLangUI() {
+      // อัปเดตรูปธงปุ่มหลัก
+      const img = document.getElementById("langCurrentImg");
+      if (!img) return;
+      if (currentLang === "en") img.src = "/images/flags/en.png";
+      if (currentLang === "th") img.src = "/images/flags/th.png";
+      if (currentLang === "zh") img.src = "/images/flags/zh.png";
+
+      // ไฮไลต์ในเมนู
+      document.querySelectorAll(".lang-option").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLang);
+      });
+    }
+
+    function setLanguage(lang) {
+      if (!i18n[lang]) return;
+      currentLang = lang;
+      localStorage.setItem("lang", lang);
+      applyTranslations();
+      updateLangUI();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // โหลดค่าภาษาที่เคยเลือกไว้
+      const saved = localStorage.getItem("lang");
+      if (saved && i18n[saved]) {
+        currentLang = saved;
+      }
+
+      applyTranslations();
+      updateLangUI();
+
+      // toggle dropdown
+      const currentBtn = document.getElementById("langCurrentBtn");
+      const menu = document.getElementById("langMenu");
+
+      currentBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        menu.classList.toggle("open");
+      });
+
+      document.querySelectorAll(".lang-option").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const lang = btn.dataset.lang;
+          setLanguage(lang);
+          menu.classList.remove("open");
+        });
+      });
+
+      // click นอกเมนูให้ปิด
+      document.addEventListener("click", () => {
+        menu.classList.remove("open");
+      });
+    });
+
+    // ---------- UI logic ----------
+    function togglePassword(id, icon) {
+      const input = document.getElementById(id);
+      if (!input) return;
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fi-rr-eye-crossed");
+        icon.classList.add("fi-rr-eye");
+      } else {
+        input.type = "password";
+        icon.classList.add("fi-rr-eye-crossed");
+        icon.classList.remove("fi-rr-eye");
+      }
+    }
+
+    function showLogin() {
+      document.getElementById("registerForm").classList.add("hidden");
+      document.getElementById("loginForm").classList.remove("hidden");
+      document.getElementById("registerMessage").textContent = "";
+    }
+
+    function showRegister() {
+      document.getElementById("loginForm").classList.add("hidden");
+      document.getElementById("registerForm").classList.remove("hidden");
+      document.getElementById("loginMessage").textContent = "";
+    }
+
+    async function register() {
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const passwordConfirm =
+        document.getElementById("regPasswordConfirm").value;
+      const msg = document.getElementById("registerMessage");
+
+      msg.textContent = "";
+      msg.className = "message";
+
+      if (!email || !password || !passwordConfirm) {
+        msg.textContent = t("fillAllFields");
+        msg.classList.add("error");
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        msg.textContent = t("passwordMismatch");
+        msg.classList.add("error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, passwordConfirm })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.message || t("registerFail");
+          msg.classList.add("error");
+          return;
+        }
+
+        msg.textContent = t("registerSuccess");
+        msg.classList.add("success");
+
+        setTimeout(() => {
+          showLogin();
+        }, 1500);
+      } catch (err) {
+        console.error("Register error:", err);
+        msg.textContent = t("genericError");
+        msg.classList.add("error");
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const msg = document.getElementById("loginMessage");
+
+      msg.textContent = "";
+      msg.className = "message";
+
+      if (!email || !password) {
+        msg.textContent = t("fillAllFields");
+        msg.classList.add("error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.textContent = data.message || t("loginFail");
+          msg.classList.add("error");
+          return;
+        }
+
+        localStorage.setItem("token", data.token);
+
+        const decoded = jwt_decode(data.token);
+        const role = decoded.role || "user";
+        const isAdmin = role === "admin";
+
+        msg.textContent = t("loginSuccess");
+        msg.classList.add("success");
+
+        setTimeout(() => {
+          if (isAdmin) {
+            window.location.href = "/admin-users";
+          } else {
+            window.location.href = "/profile";
+          }
+        }, 1000);
+      } catch (err) {
+        console.error("Login error:", err);
+        msg.textContent = t("genericError");
+        msg.classList.add("error");
+      }
+    }
+
+    function forgotPassword() {
+      alert("Password reset flow will be added soon. 🙂");
+    }
+  </script>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(() => console.log("Service Worker registered"));
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>Bill</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;font-family:'Inter',sans-serif}
+body{margin:0;background:#1E88E5}
+.app{max-width:420px;margin:auto;min-height:100vh;color:#fff}
+
+/* Header */
+.header{display:flex;align-items:center;padding:16px}
+.back,.menu{width:40px;text-align:center;font-size:40px;cursor:pointer}
+.title{flex:1;text-align:center;font-weight:600}
+
+/* Content */
+.content{padding:16px}
+.result-text{text-align:center;font-size:22px;font-weight:600;margin:20px 0 12px}
+
+/* Prize */
+.card-wrap{position:relative;margin-top:36px}
+.prize{
+  position:absolute;top:-28px;left:16px;right:16px;
+  padding:16px;border-radius:14px;
+  font-size:34px;font-weight:700;text-align:center;color:#fff
+}
+.prize.win{background:#2ecc71}
+.prize.lose{background:#e53935}
+.prize.pending{background:#53b0fc}
+
+/* Card */
+.card{
+  background:#fff;color:#263238;
+  border-radius:14px;padding:16px;margin-bottom:16px
+}
+.info-card{padding-top:56px}
+.row{display:flex;justify-content:space-between;padding:6px 0;font-size:15px}
+.card h3{margin:0 0 12px}
+
+/* Numbers */
+.balls{display:flex;gap:10px;flex-wrap:wrap}
+.ball{
+  min-width:44px;height:44px;padding:0 10px;
+  border-radius:22px;border:2px solid #CFD8DC;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;color:#263238
+}
+.ball.win{background:#2ecc71;color:#fff;border:none}
+.ball.lose{background:#bbbbbb;color:#0c0c0c;border:none}
+.ball.pending{background:#bbbbbb;color:#000000;border:none}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <span class="back" id="backBtn">←</span>
+    <span class="title" id="orderTitle">Order</span>
+  </div>
+
+  <div class="content">
+
+    <div class="result-text" id="resultText">-</div>
+
+    <div class="card-wrap">
+      <div class="prize pending" id="prizeBox">-</div>
+
+      <div class="card info-card">
+        <div class="row"><span>Game</span><b>Lottery</b></div>
+        <div class="row"><span>วันที่สั่งซื้อ</span><b id="orderDate">-</b></div>
+        <div class="row"><span>จำนวนตั๋ว</span><b id="ticketCount">-</b></div>
+        <div class="row"><span>เล่น</span><b id="playCount">-</b></div>
+        <div class="row"><span>เงินที่แทง</span><b id="totalStake">-</b></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>หมายเลขที่ซื้อ</h3>
+      <div class="balls" id="winningNumbers"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/js/bill.js"></script>
+</body>
+</html>

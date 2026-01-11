@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ประวัติผลหวย — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ฟอนต์ -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- Topbar ร่วม -->
+  <link rel="stylesheet" href="/css/topbar.css">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ไอคอน -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: linear-gradient(180deg, #e0f2fe 0%, #f3f4f6 40%, #f9fafb 100%);
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px 16px 80px;
+      width: 100%;
+    }
+
+    .empty-state,
+    .loading-state {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-align: center;
+      padding: 18px 8px;
+    }
+
+    .latest-result-banner {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e40af 45%, #0ea5e9 100%);
+      color: #e5f2ff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .latest-result-banner::after {
+      content: "";
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(248,250,252,0.22), transparent 65%);
+      right: -40px;
+      top: -40px;
+      opacity: 0.8;
+    }
+
+    .latest-result-left {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .latest-result-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.95;
+    }
+
+    .chip-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 0 4px rgba(248,113,113,0.3);
+      animation: livePulse 1.6s infinite;
+    }
+
+    .latest-result-sub {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    .latest-result-main {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .latest-result-digits {
+      display: flex;
+      gap: 4px;
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .latest-result-digit {
+      min-width: 22px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: rgba(15,23,42,0.9);
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.7);
+    }
+
+    .latest-result-empty {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    @keyframes livePulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 4px rgba(248,113,113,0.3); }
+      70% { transform: scale(1.2); box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(248,113,113,0.3); }
+    }
+
+    .round-meta {
+      font-size: 11px;
+      color: #bfdbfe;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div>
+      <div class="text-lg font-semibold leading-none">INTL LOTTO</div>
+      <div class="text-xs opacity-90 -mt-1">ประวัติผลหวย</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="page-wrapper">
+    <h1 class="text-base font-semibold text-gray-800 mb-1">
+      ประวัติผลรางวัลย้อนหลัง 24 งวด
+    </h1>
+    <p class="text-[11px] text-gray-500 mb-3">
+      สำหรับตรวจสอบผลย้อนหลังและเทียบกับเลขที่คุณซื้อ
+    </p>
+
+    <div id="history-list">
+      <div class="loading-state">กำลังโหลดข้อมูล...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+
+    function ensureLoggedIn() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อนดูประวัติผลหวย');
+        window.location.href = '/index.html';
+        return null;
+      }
+      return token;
+    }
+
+    function formatDateTh(iso) {
+      if (!iso) return '-';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '-';
+      return d.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function buildDigitsHtml(rawNumber) {
+      // เอาเฉพาะตัวเลข แล้วให้ได้ 8 หลักท้าย
+      const numeric = String(rawNumber || '')
+        .replace(/\D/g, '')
+        .padStart(8, '0')
+        .slice(-8);
+
+      if (!numeric) {
+        return '<span class="latest-result-empty">ไม่มีข้อมูล</span>';
+      }
+
+      return numeric
+        .split('')
+        .map(ch => `<div class="latest-result-digit">${escapeHtml(ch)}</div>`)
+        .join('');
+    }
+
+    async function loadHistory() {
+      const token = ensureLoggedIn();
+      if (!token) return;
+
+      const listEl = document.getElementById('history-list');
+      listEl.innerHTML = '<div class="loading-state">กำลังโหลดข้อมูล...</div>';
+
+      try {
+        // ใช้เส้น API ที่มีจริง: GET /api/lottery/history?limit=15
+        const res = await fetch(`${API_BASE}/lottery/history?limit=24`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        // backend ส่ง { success: true, data: [...] }
+        if (!res.ok || !data.success || !Array.isArray(data.data)) {
+          listEl.innerHTML =
+            '<div class="empty-state">ไม่สามารถโหลดประวัติผลหวยได้</div>';
+          return;
+        }
+
+        let results = data.data || [];
+        if (!results.length) {
+          listEl.innerHTML =
+            '<div class="empty-state">ยังไม่มีข้อมูลผลหวยย้อนหลัง</div>';
+          return;
+        }
+
+        // เรียงจากงวดล่าสุด → เก่าสุด ตามวันที่ออกผล/สร้าง
+        results = results.slice().sort((a, b) => {
+          const dateA = new Date(a.settledAt || a.drawAt || a.closedAt || a.createdAt || 0);
+          const dateB = new Date(b.settledAt || b.drawAt || b.closedAt || b.createdAt || 0);
+          return dateB - dateA; // ใหม่ก่อน
+        });
+
+        listEl.innerHTML = '';
+
+        results.forEach((r, idx) => {
+          const roundId   = r.roundId || r._id || '-';
+          const numberRaw =
+            r.resultNumber ||
+            r.number ||
+            r.result8 ||
+            r.result8Digits ||
+            r.lastResult ||
+            '-';
+          const settledAt = r.settledAt || r.drawAt || r.closedAt || r.createdAt;
+          const status    = r.status || r.state || null;
+
+          const banner = document.createElement('div');
+          banner.className = 'latest-result-banner';
+
+          banner.innerHTML = `
+            <div class="latest-result-left">
+              <div class="latest-result-label">
+                <span class="chip-live"></span>
+                ผลรางวัล 8 ตัว
+              </div>
+              <div class="latest-result-sub">
+                งวดย้อนหลัง #${idx + 1} · งวดที่ ${escapeHtml(roundId)}
+              </div>
+              <div class="round-meta">
+                เวลาออกผล: ${formatDateTh(settledAt)}
+                ${status ? ` · สถานะ: ${escapeHtml(status)}` : ''}
+              </div>
+            </div>
+            <div class="latest-result-main">
+              <div class="latest-result-digits">
+                ${buildDigitsHtml(numberRaw)}
+              </div>
+            </div>
+          `;
+
+          listEl.appendChild(banner);
+        });
+      } catch (err) {
+        console.error('loadHistory error:', err);
+        listEl.innerHTML =
+          '<div class="empty-state">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์</div>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadHistory);
+  </script>
+</body>
+</html>

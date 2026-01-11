@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ซื้อหวย — INTL LOTTO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <!-- ฟอนต์ -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+  <style>
+  .hero-banner {
+    margin-bottom: 18px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+  }
+
+  .hero-banner img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    padding: 6px 0 4px;
+    z-index: 50;
+  }
+  .bottom-nav .nav-item {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    color: #9e9e9e;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .bottom-nav .nav-item i { font-size: 18px; }
+  .bottom-nav .nav-item.active { color: #29b6f6; }
+  .bottom-nav .nav-item.active i { color: #29b6f6; }
+  .page-bottom-space { height: 56px; }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Prompt", sans-serif;
+    background: radial-gradient(circle at top, #e0f2fe 0, #e5e7eb 45%, #e0e0e0 100%);
+    color: #333;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  /* HEADER (เผื่อใช้ในอนาคต) */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .brand-left { display: flex; align-items: center; gap: 8px; }
+  .logo { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; background: #ffffff; }
+  .brand-title { font-size: 20px; font-weight: 600; color: #2196f3; }
+  .header-actions { display: flex; gap: 8px; }
+
+  .btn {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    background: #29b6f6;
+    color: #fff;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.05s;
+    white-space: nowrap;
+  }
+  .btn-outline { background: #ffffff; color: #29b6f6; border: 1px solid #29b6f6; }
+  .btn-danger { background: #ef5350; }
+  .btn:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.18); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); box-shadow: none; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.4fr);
+    gap: 16px;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: radial-gradient(circle at top left, rgba(33,150,243,0.18), transparent 55%);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .card h2 { margin: 0 0 6px 0; font-size: 18px; color: #1e88e5; }
+  .subtitle { font-size: 12px; color: #757575; margin-bottom: 10px; }
+  .helper { font-size: 11px; color: #9e9e9e; margin-bottom: 8px; }
+
+  .form-row { margin-bottom: 10px; }
+
+  /* ✅ ฟอร์มเวอร์ชันใหม่ */
+  .bet-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .bet-field {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .bet-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .bet-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .bet-hint-chip {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .bet-input-shell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+
+  .bet-input-shell i {
+    font-size: 14px;
+    color: #9ca3af;
+  }
+
+  .bet-input-shell select,
+  .bet-input-shell input[type="text"],
+  .bet-input-shell input[type="number"] {
+    border: none;
+    background: transparent;
+    padding: 4px 0;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+    color: #111827;
+  }
+
+  .bet-input-shell:focus-within {
+    border-color: #29b6f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(41, 182, 246, 0.2);
+  }
+
+  /* สไตล์เดิมเผื่อ input/select ที่อื่นใช้ */
+  label { display: block; font-size: 13px; margin-bottom: 3px; }
+  select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid #cfd8dc;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: #f9fafb;
+  }
+  /* ให้ฟิลด์ที่อยู่ใน bet-input-shell เราดูแลเอง */
+  .bet-input-shell select,
+  .bet-input-shell input[type="text"],
+  .bet-input-shell input[type="number"] {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 4px 0;
+  }
+  select:focus, input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #29b6f6;
+    box-shadow: 0 0 0 2px rgba(41,182,246,0.25);
+    background: #ffffff;
+  }
+
+  @media (max-width: 600px) {
+    .bet-field {
+      flex: 1 1 100%;
+    }
+  }
+
+  .divider { border-top: 1px dashed #e0e0e0; margin: 14px 0; }
+
+  .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+  .summary-amount { font-weight: 600; color: #1e88e5; }
+
+  .balance-box { margin-top: 4px; margin-bottom: 12px; }
+  .balance-label { font-size: 13px; color: #757575; }
+  .balance-amount { font-size: 22px; font-weight: 600; color: #1e88e5; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e3f2fd;
+    font-size: 11px;
+    color: #1e88e5;
+    margin-left: 6px;
+  }
+
+  .round-info { border-top: 1px solid #eeeeee; padding-top: 10px; margin-top: 8px; font-size: 13px; }
+  .round-row { display: flex; align-items: center; margin-bottom: 4px; gap: 4px; }
+  .round-label { width: 95px; color: #757575; }
+  .round-value { font-weight: 500; }
+
+  .tab-buttons {
+    display: inline-flex;
+    background: #e3f2fd;
+    border-radius: 999px;
+    padding: 2px;
+    margin-bottom: 10px;
+    gap: 2px;
+  }
+  .tab-btn {
+    border-radius: 999px;
+    border: none;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    background: transparent;
+    color: #1e88e5;
+  }
+  .tab-btn.active {
+    background: #ffffff;
+    color: #1e88e5;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td {
+    padding: 6px 6px;
+    border-bottom: 1px solid #eeeeee;
+    vertical-align: top;
+  }
+  th {
+    text-align: left;
+    background: #fafafa;
+    font-weight: 600;
+    color: #616161;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .status-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; }
+  .status-pending { background: #fff3cd; color: #856404; }
+  .status-won { background: #c8e6c9; color: #2e7d32; }
+  .status-lost { background: #ffcdd2; color: #c62828; }
+
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .small { font-size: 11px; }
+  .mt-8 { margin-top: 8px; }
+
+  /* ========= แถบแสดงงวดล่าสุด (8 ตัวเลข) ========= */
+  .latest-result-banner {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e40af 45%, #0ea5e9 100%);
+    color: #e5f2ff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 10px 24px rgba(15,23,42,0.45);
+    position: relative;
+    overflow: hidden;
+  }
+  .latest-result-banner::after {
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(248,250,252,0.22), transparent 65%);
+    right: -40px;
+    top: -40px;
+    opacity: 0.8;
+  }
+  .latest-result-left {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .latest-result-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.95;
+  }
+  .chip-live {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #f97316;
+    box-shadow: 0 0 0 4px rgba(248,113,113,0.3);
+    animation: livePulse 1.6s infinite;
+  }
+  .latest-result-sub {
+    font-size: 11px;
+    opacity: 0.9;
+    margin-top: 2px;
+  }
+  .latest-result-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .latest-result-digits {
+    display: flex;
+    gap: 4px;
+    font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+  .latest-result-digit {
+    min-width: 22px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    background: rgba(15,23,42,0.9);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    box-shadow: 0 2px 4px rgba(15,23,42,0.7);
+  }
+  .latest-result-empty {
+    font-size: 11px;
+    opacity: 0.9;
+  }
+  @keyframes livePulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 4px rgba(248,113,113,0.3); }
+    70% { transform: scale(1.2); box-shadow: 0 0 0 8px rgba(248,113,113,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(248,113,113,0.3); }
+  }
+
+  /* ========= การ์ดบิลแบบใหม่ ========= */
+
+  .bill-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .bill-card-empty {
+    font-size: 11px;
+    text-align: center;
+    color: #757575;
+    padding: 8px 0;
+  }
+
+  .bill-card {
+    background: linear-gradient(135deg, #13233d 0%, #0066eb 100%);
+    border-radius: 14px;
+    padding: 8px 12px;
+    color: #e9f1ff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.04);
+    width: 100%;
+  }
+
+  .bill-card-left {
+    flex: 0 0 32%;
+    max-width: 32%;
+  }
+
+  .bill-card-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #90a4c6;
+    margin-bottom: 2px;
+  }
+
+  .bill-card-number {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bill-card-numbers-detail {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #b0c4ff;
+  }
+
+  .bill-card-middle-h {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .bill-card-field {
+    background: rgba(0, 27, 78, 0.767);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 11px;
+    min-width: 100px;
+  }
+
+  .bill-card-field-label {
+    color: #90a4c6;
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+
+  .bill-card-field-value {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .bill-card-meta {
+    font-size: 10px;
+    color: #90a4c6;
+    margin-top: 4px;
+  }
+
+  .bill-card-right {
+    flex: 0 0 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .bill-card-status {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 90px;
+  }
+
+  .bill-card-status.pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+  .bill-card-status.won {
+    background: #c8e6c9;
+    color: #2e7d32;
+  }
+  .bill-card-status.lost {
+    background: #ffcdd2;
+    color: #c62828;
+  }
+  .bill-card-status.paid {
+    background: #ffecb3;
+    color: #8d6e00;
+  }
+
+  .bill-card-link {
+    font-size: 10px;
+    color: #90caf9;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
+
+    .page {
+      padding: 12px 10px;
+    }
+
+    .card {
+      padding: 12px 12px;
+    }
+
+    .bill-card {
+      padding: 8px 10px;
+      gap: 8px;
+    }
+
+    .bill-card-left {
+      flex-basis: 36%;
+      max-width: 36%;
+    }
+
+    .bill-card-number {
+      font-size: 18px;
+      letter-spacing: 0.12em;
+    }
+
+    .bill-card-middle-h {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+    }
+
+    .bill-card-field {
+      padding: 4px 8px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .bill-card-right {
+      flex-basis: 80px;
+      gap: 6px;
+    }
+
+    .bill-card-status {
+      font-size: 10px;
+      padding: 4px 8px;
+      min-width: 0;
+    }
+
+    .bill-card-meta {
+      font-size: 9px;
+    }
+  }
+.set-buttons {
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+.set-buttons button {
+  padding:6px 14px;
+  border-radius:999px;
+  border:1px solid #29b6f6;
+  background:#fff;
+  color:#29b6f6;
+  font-size:13px;
+  cursor:pointer;
+}
+.set-buttons button.active {
+  background:#29b6f6;
+  color:#fff;
+}
+
+.number-inputs {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(52px,1fr));
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.number-inputs input {
+  height:52px;
+  font-size:28px;
+  text-align:center;
+  border-radius:12px;
+  border:1px solid #cfd8dc;
+}
+
+.number-inputs.eight-set {
+  display:flex;
+}
+.number-inputs.eight-set input {
+  font-size:22px;
+}
+
+.random-btn {
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  background:#e3f2fd;
+  border:none;
+  color:#1e88e5;
+  font-weight:600;
+  margin-bottom:12px;
+}
+
+.amount-input {
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #cfd8dc;
+}
+
+  </style>
+
+</head>
+<body>
+   <!-- TOPBAR -->
+  <div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-brand">
+      <img src="/images/intl-lotto-logo1.png" alt="INTL LOTTO">
+    </div>
+
+    <!-- ปุ่มกระดิ่งอยู่ใน topbar-inner ด้านขวา -->
+    <div class="topbar-actions">
+      <button onclick="openNotifications()" class="notif-btn">
+        <i class="fas fa-bell"></i>
+        <span id="notif-dot" class="notif-dot hidden"></span>
+      </button>
+
+      <button class="notif-btn" onclick="openHistory()">
+  <i class="fas fa-history"></i>
+</button>
+    </div>
+  </div>
+</div>
+
+
+
+  <div class="page">
+    <div class="hero-banner">
+      <img src="/images/lottery-banner.png" alt="โปรโมชั่นหวยวันนี้" />
+    </div>
+
+    <div class="grid">
+      <!-- ========= LEFT : แทงหวย ========= -->
+      <section class="card">
+
+        <!-- แถบเลขงวดล่าสุด -->
+        <div class="latest-result-banner">
+          <div class="latest-result-left">
+            <div class="latest-result-label">
+              <span class="chip-live"></span>
+              ผลรางวัล8ตัว
+            </div>
+            <div class="latest-result-sub" id="latestResultRound"> งวด -</div>
+          </div>
+          <div class="latest-result-main">
+            <div id="latestResultDigits" class="latest-result-digits">
+              <!-- ตัวเลขจะถูกเติมด้วย JS -->
+            </div>
+          </div>
+        </div>
+        <!-- ⏳ Countdown -->
+<div id="countdownBox" style="
+  margin-bottom:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#fff7ed;
+  color:#92400e;
+  font-size:13px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:8px;
+">
+  <i class="fas fa-hourglass-half"></i>
+  <span>เหลือเวลาอีก</span>
+  <span id="nextDrawCountdown">--:--:--</span>
+  <span>หวยจะออก</span>
+</div>
+
+
+        <h2>แทงหวย สากล</h2>
+
+        <div class="helper">ระบุประเภทเลข เลขที่ต้องการ และจำนวนเงินต่อหนึ่งเลข</div>
+
+        <!-- ฟอร์มเวอร์ชันใหม่ -->
+        <div class="form-row bet-controls">
+          <!-- ประเภทเลข -->
+          <div class="bet-field">
+            <div class="bet-label-row">
+              <span class="bet-label">ประเภทเลข</span>
+              <span class="bet-hint-chip">
+                <i class="fas fa-list-ol" style="font-size:9px;"></i> เลือกรูปแบบ
+              </span>
+            </div>
+            <!-- ====== FORM BUY LOTTERY (NEW UI) ====== -->
+<div class="lottery-card" style="box-shadow:none;padding:0;max-width:none">
+
+  <div class="set-buttons">
+    <button class="active" data-count="2">2 ตัว</button>
+    <button data-count="3">3 ตัว</button>
+    <button data-count="4">4 ตัว</button>
+    <button data-count="8">8 ตัว</button>
+  </div>
+
+  <div class="number-inputs" id="numberInputs"></div>
+
+  <button class="random-btn" id="randomBtn">สุ่มเลข</button>
+
+  <input
+    id="stakeInput"
+    class="amount-input"
+    type="number"
+    min="1"
+    placeholder="จำนวนเงินต่อเลข"
+  />
+
+</div>
+
+<button class="btn mt-8"
+  onclick="window.lottoClient && window.lottoClient.addEntryFromForm && window.lottoClient.addEntryFromForm()">
+  เพิ่มลงในตะกร้า
+</button>
+
+
+
+
+        <div class="divider"></div>
+
+        <div id="entryList" class="small mt-8" style="max-height: 150px; overflow-y: auto;">
+          ยังไม่มีเลขในตะกร้า
+        </div>
+
+        <div class="summary-row mt-8">
+          <span>รวมทั้งสิ้น:</span>
+          <span class="summary-amount" id="totalStakeText">0 บาท</span>
+        </div>
+
+        <!-- ยืนยันซื้อ -->
+        <button class="btn mt-8" style="width: 100%;" onclick="window.lottoClient && window.lottoClient.submitTicket && window.lottoClient.submitTicket()">
+          ยืนยันซื้อหวย
+        </button>
+      </section>
+
+      <!-- ========= RIGHT : ข้อมุลบัญชี & งวด / บิล ========= -->
+      <section class="card">
+        <div>
+          <h2>ข้อมูลบัญชี & งวดปัจจุบัน</h2>
+
+          <div class="balance-box">
+            <div class="balance-label">ยอดคงเหลือ</div>
+            <div class="balance-amount" id="balanceText">-</div>
+            <span class="badge">THB</span>
+          </div>
+
+          <!-- ซ่อนค่าไว้สำหรับ JS ถ้าจะใช้ -->
+          <span id="wallet-balance" style="display:none;">-</span>
+
+          <div class="round-info">
+            <div class="round-row">
+              <span class="round-label">รหัสงวด:</span>
+              <span class="round-value" id="roundIdText">-</span>
+            </div>
+            <div class="round-row">
+              <span class="round-label">เวลาจับผล:</span>
+              <span class="round-value" id="roundDrawAtText">-</span>
+            </div>
+            <div class="round-row">
+              <span class="round-label">งวดล่าสุด:</span>
+              <span class="round-value" id="lastResultText">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider" style="margin-top:16px;"></div>
+
+        <!-- บิลหวยของฉัน -->
+        <div class="mt-8">
+          <h3>บิลหวยของฉัน</h3>
+
+          <div class="tab-buttons">
+            <button class="tab-btn active" id="tabPending" onclick="window.lottoClient && window.lottoClient.switchTab && window.lottoClient.switchTab('pending')">
+              รอผล
+            </button>
+            <button class="tab-btn" id="tabHistory" onclick="window.lottoClient && window.lottoClient.switchTab && window.lottoClient.switchTab('history')">
+              สรุปแล้ว
+            </button>
+          </div>
+
+          <!-- กล่อง รอผล -->
+          <div id="pendingBox">
+            <div id="ticketCardsPending" class="bill-card-list">
+              <div class="bill-card-empty">ยังไม่มีบิลที่รอผล</div>
+            </div>
+
+            <!-- ตารางเดิม เผื่อ JS เก่าใช้งาน -->
+            <div class="legacy-table" style="display:none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>เวลา</th>
+                    <th>งวด</th>
+                    <th>เลขที่ซื้อ</th>
+                    <th class="text-right">ยอดแทง</th>
+                    <th class="text-center">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="ticketTablePendingBody">
+                  <tr>
+                    <td colspan="5" class="text-center small">
+                      ยังไม่มีบิลที่รอผล
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- กล่อง สรุปแล้ว -->
+          <div id="historyBox" style="display:none;">
+            <div id="ticketCardsHistory" class="bill-card-list">
+              <div class="bill-card-empty">ยังไม่มีประวัติบิล</div>
+            </div>
+
+            <div class="legacy-table" style="display:none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>เวลา</th>
+                    <th>งวด</th>
+                    <th>เลขที่ซื้อ</th>
+                    <th class="text-right">ยอดแทง</th>
+                    <th class="text-center">สถานะ</th>
+                    <th class="text-right">รับรางวัล</th>
+                  </tr>
+                </thead>
+                <tbody id="ticketTableHistoryBody">
+                  <tr>
+                    <td colspan="6" class="text-center small">
+                      ยังไม่มีประวัติบิล
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+<script src="/socket.io/socket.io.js"></script>
+  <!-- JS ภายนอกของคุณ -->
+  <script src="/js/lottery-client.js"></script>
+
+  <!-- 2️⃣ realtime (ใช้ lottoClient + socket) -->
+<script src="/js/lottery-realtime.js"></script>
+
+<script src="/js/state-poller.js"></script>
+
+<script>
+  let lastBalance = null;
+let lastHasNotification = null;
+
+async function refreshState() {
+  try {
+    const res = await fetch("/api/state", {
+      credentials: "include"
+    });
+    const data = await res.json();
+
+    /* =====================
+       💰 ยอดเงิน
+    ===================== */
+    if (typeof data.balance === "number" && data.balance !== lastBalance) {
+      lastBalance = data.balance;
+
+      const balanceEl = document.getElementById("balanceText");
+      const walletSpan = document.getElementById("wallet-balance");
+
+      const formatted = data.balance.toLocaleString("th-TH");
+
+      if (balanceEl) balanceEl.innerText = formatted;
+      if (walletSpan) walletSpan.innerText = formatted;
+    }
+
+    /* =====================
+       🔔 จุดแดงแจ้งเตือน
+    ===================== */
+    if (
+      typeof data.hasNotification === "boolean" &&
+      data.hasNotification !== lastHasNotification
+    ) {
+      lastHasNotification = data.hasNotification;
+      const dot = document.getElementById("notif-dot");
+
+      if (dot) {
+        if (data.hasNotification) {
+          dot.classList.remove("hidden");
+        } else {
+          dot.classList.add("hidden");
+        }
+      }
+    }
+
+  } catch (err) {
+    console.error("refreshState error:", err);
+  }
+}
+
+// เรียกทันที
+refreshState();
+// เรียกซ้ำทุก 2 วิ
+setInterval(refreshState, 2000);
+
+</script>
+
+
+
+  <div class="page-bottom-space"></div>
+
+  <div class="bottom-nav">
+    <a href="/lottery" class="nav-item active">
+      <i class="fas fa-ticket-alt"></i>
+      <span>ซื้อหวย</span>
+    </a>
+    <a href="/wallet" class="nav-item">
+      <i class="fas fa-wallet"></i>
+      <span>กระเป๋าเงิน</span>
+    </a>
+    <a href="/profile" class="nav-item">
+      <i class="fas fa-user"></i>
+      <span>โปรไฟล์</span>
+    </a>
+  </div>
+
+</body>
+</html>

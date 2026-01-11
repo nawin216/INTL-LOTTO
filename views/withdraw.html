@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ถอน USDT — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Prompt', sans-serif !important;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #e0f2fe 0%, #f3f4f6 40%, #f9fafb 100%);
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px 16px 24px;
+      padding-bottom: 80px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 24px rgba(148,163,184,0.25);
+      border: 1px solid #e5e7eb;
+      padding: 18px 18px 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.1), transparent 55%);
+      pointer-events: none;
+    }
+
+    .card > * { position: relative; z-index: 1; }
+
+    .pill-uid {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      font-size: 0.75rem;
+      color: #ea580c;
+      font-weight: 500;
+    }
+
+    .pill-uid i { font-size: 0.8rem; }
+
+    .balance-main {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0284c7;
+      letter-spacing: 0.02em;
+    }
+
+    .balance-label {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    /* ฟิลด์ฟอร์ม */
+    .field-label {
+      display: block;
+      font-size: 0.9rem;
+      color: #374151;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .field-input,
+    .field-select {
+      width: 100%;
+      border-radius: 0.9rem;
+      border: 1px solid #d1d5db;
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      color: #111827;
+      background: #f9fafb;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .field-input:focus,
+    .field-select:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 1px rgba(14,165,233,0.35);
+      background: #ffffff;
+    }
+
+    .field-help {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .max-btn {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #2d7ef8;
+      color: #0551df;
+      background: #ebf4ff;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .max-btn:hover {
+      background: #c7ddfe;
+      border-color: #2456fb;
+    }
+
+    .receive-amount {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .receive-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .fee-note {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    #amount-error {
+      font-size: 0.7rem;
+      color: #ef4444;
+      min-height: 14px;
+    }
+
+    /* ปุ่มถอน */
+    #withdraw-btn {
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      box-shadow: 0 6px 14px rgba(22, 101, 249, 0.35);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.12s ease, background 0.15s ease;
+    }
+
+    #withdraw-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(31, 111, 231, 0.616);
+    }
+
+    #withdraw-btn:disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+      z-index: 50;
+    }
+    .toast.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .toast.success { background: #16a34a; }
+    .toast.error   { background: #ef4444; }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div>
+      <div class="text-lg font-semibold leading-none">INTL LOTTO</div>
+      <div class="text-xs opacity-90 -mt-1">ถอนเงิน (THB)</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="page-wrapper">
+
+    <!-- UID & Balance -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-right">
+          <p class="balance-label">ยอดคงเหลือ</p>
+          <p id="available-balance" class="balance-main mt-0.5">
+            กำลังโหลด... THB
+          </p>
+        </div>
+      </div>
+
+      <p class="text-[11px] text-gray-400 mt-1" id="balance-hint">
+        ข้อมูลยอดคงเหลืออาจล่าช้าเล็กน้อยจากเวลาจริง
+      </p>
+    </div>
+
+    <!-- FORM ถอน -->
+    <div class="card space-y-4">
+      <div class="mb-1">
+        <p class="text-sm font-semibold text-gray-800">รายละเอียดการถอน</p>
+        <p class="text-[11px] text-gray-400 mt-0.5">
+          กรอกข้อมูลให้ครบถ้วนก่อนยืนยัน ระบบจะส่งคำขอให้เจ้าหน้าที่ตรวจสอบ
+        </p>
+      </div>
+
+      <!-- ที่อยู่กระเป๋า -->
+      <div>
+        <label for="walletAddress" class="field-label">
+          ที่อยู่กระเป๋า
+        </label>
+        <input
+          type="text"
+          id="walletAddress"
+          placeholder="วางที่อยู่กระเป๋า USDT ของคุณ"
+          class="field-input"
+        />
+        <p class="field-help">
+          กรุณาตรวจสอบให้ถูกต้องก่อนทำรายการ ระบบไม่รับผิดชอบหากโอนไปยังที่อยู่ผิด
+        </p>
+      </div>
+
+      <!-- Network -->
+      <div>
+        <label for="network" class="field-label">
+          เครือข่าย
+        </label>
+        <select
+          id="network"
+          class="field-select bg-white"
+        >
+          <option value="">เลือกเครือข่าย</option>
+          <option value="TRC-20">Tron (TRC-20)</option>
+          <option value="ERC-20">Ethereum Mainnet (ERC-20)</option>
+          <option value="BSC">BNB Smart Chain (BEP-20)</option>
+          <option value="MATIC">Polygon (MATIC)</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label for="amount" class="field-label">
+          จำนวนเงิน
+        </label>
+        <div class="flex items-center gap-2">
+          <input
+            type="number"
+            id="amount"
+            placeholder="ขั้นต่ำ 0.00"
+            class="field-input"
+            min="0"
+            step="0.01"
+          />
+          <span class="text-sm text-gray-500">THB</span>
+          <button
+            type="button"
+            class="max-btn"
+            onclick="setMaxAmount()"
+          >
+            MAX
+          </button>
+        </div>
+        <p class="field-help">
+          จำนวนเงินที่กรอกต้องไม่เกินยอดคงเหลือในบัญชี
+        </p>
+        <p class="mt-1" id="amount-error"></p>
+      </div>
+
+      <!-- Summary + Button -->
+      <div class="flex items-center justify-between pt-3 border-t border-dashed border-gray-200 mt-2">
+        <div>
+          <p class="receive-label mb-0.5">จำนวนที่ได้รับโดยประมาณ</p>
+          <p class="receive-amount" id="receive-amount">0.00 THB</p>
+          <p class="fee-note">
+            ค่าธรรมเนียมการถอน <span class="font-semibold text-gray-600">0.06%</span>
+          </p>
+        </div>
+        <button
+          id="withdraw-btn"
+          class="shadow"
+          disabled
+        >
+          ถอน
+        </button>
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-gray-500 mt-1">
+      * ตรวจสอบที่อยู่กระเป๋าและเครือข่ายให้ถูกต้องก่อนยืนยันถอนทุกครั้ง
+    </p>
+  </div>
+
+  <div class="h-16"></div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ================== CONFIG ==================
+    const API_BASE     = "/api";
+    const PROFILE_API  = `${API_BASE}/profile`;
+    const WALLET_API   = `${API_BASE}/wallet`;
+    // 🔧 ใช้ /api/withdrawals ตาม backend ปัจจุบัน
+    const WITHDRAW_API = `${API_BASE}/withdrawals`;
+
+    const token = localStorage.getItem("token");
+    const FEE_RATE = 0.0006; // 0.06%
+
+    let currentUserId = "";
+    let currentBalance = 0;
+
+    // ================== UTIL ==================
+    function showToast(message, type = "info") {
+      const t = document.getElementById("toast");
+      t.textContent = message;
+      t.className = "toast show " + (type === "success" ? "success" : type === "error" ? "error" : "");
+      setTimeout(() => t.classList.remove("show"), 2800);
+    }
+
+    function authHeaders(json = true) {
+      const h = {};
+      if (token) h["Authorization"] = "Bearer " + token;
+      if (json) h["Content-Type"] = "application/json";
+      return h;
+    }
+
+    function formatAmount(n) {
+      const num = Number(n || 0);
+      return num.toLocaleString("th-TH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    // ================== LOAD PROFILE & BALANCE ==================
+    async function loadProfile() {
+      try {
+        const res = await fetch(PROFILE_API, {
+          headers: authHeaders(false),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          console.warn("profile error", data);
+          if (res.status === 401) {
+            alert("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+            window.location.href = "/index.html";
+          }
+          return;
+        }
+
+        document.getElementById("user-uid").textContent = data.uid || "-";
+        currentUserId = data._id || "";
+      } catch (err) {
+        console.error("loadProfile error:", err);
+      }
+    }
+
+    async function refreshBalance() {
+      try {
+        const res = await fetch(WALLET_API, {
+          headers: authHeaders(false),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          console.warn("wallet error", data);
+          document.getElementById("available-balance").textContent = "ไม่สามารถโหลดยอดได้";
+          return;
+        }
+
+        const balance =
+          data.balance ??
+          data.wallet?.balance ??
+          data.currentBalance ??
+          0;
+
+        currentBalance = Number(balance || 0);
+
+        document.getElementById("available-balance").textContent =
+          `${formatAmount(currentBalance)} THB`;
+
+      } catch (err) {
+        console.error("refreshBalance error:", err);
+        document.getElementById("available-balance").textContent = "ไม่สามารถโหลดยอดได้";
+      }
+    }
+
+    // ================== FORM HANDLERS ==================
+    function updateReceiveAmount() {
+      const amountInput = document.getElementById("amount");
+      const receiveEl = document.getElementById("receive-amount");
+      const errorEl = document.getElementById("amount-error");
+      const btn = document.getElementById("withdraw-btn");
+
+      const amount = parseFloat(amountInput.value) || 0;
+      const fee = amount * FEE_RATE;
+      const finalAmount = amount - fee;
+
+      receiveEl.textContent = `${formatAmount(finalAmount > 0 ? finalAmount : 0)} THB`;
+
+      errorEl.textContent = "";
+      errorEl.style.color = "#ef4444";
+      let disabled = false;
+
+      if (amount <= 0) {
+        disabled = true;
+      } else if (amount > currentBalance) {
+        errorEl.textContent = "จำนวนเงินเกินยอดคงเหลือในบัญชี";
+        disabled = true;
+      }
+
+      btn.disabled = disabled;
+    }
+
+    function setMaxAmount() {
+      document.getElementById("amount").value = currentBalance.toFixed(2);
+      updateReceiveAmount();
+    }
+
+    async function handleWithdraw() {
+      const walletAddress = document.getElementById("walletAddress").value.trim();
+      const network = document.getElementById("network").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+
+      if (!walletAddress || !network || !amount || amount <= 0) {
+        showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+        return;
+      }
+
+      if (amount > currentBalance) {
+        showToast("จำนวนเงินเกินยอดคงเหลือ", "error");
+        return;
+      }
+
+      const ok = confirm(
+        `ยืนยันการถอน ${formatAmount(amount)} THB ไปยังที่อยู่:\n${walletAddress}\nบนเครือข่าย ${network} ?`
+      );
+      if (!ok) return;
+
+      const btn = document.getElementById("withdraw-btn");
+      btn.disabled = true;
+      const oldText = btn.textContent;
+      btn.textContent = "กำลังส่งคำขอ...";
+
+      try {
+        const res = await fetch(WITHDRAW_API, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            walletAddress,
+            network,
+            amount,
+            userId: currentUserId,
+          }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          console.error("withdraw error:", data);
+          showToast(data.message || "ไม่สามารถส่งคำขอถอนเงินได้", "error");
+          return;
+        }
+
+        showToast(data.message || "ส่งคำขอถอนแล้ว กรุณารอแอดมินตรวจสอบ", "success");
+
+        document.getElementById("walletAddress").value = "";
+        document.getElementById("network").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("receive-amount").textContent = "0.00 THB";
+        document.getElementById("amount-error").textContent = "";
+
+        await refreshBalance();
+      } catch (err) {
+        console.error("handleWithdraw error:", err);
+        showToast("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์", "error");
+      } finally {
+        btn.textContent = oldText;
+        btn.disabled = false;
+      }
+    }
+
+    // ================== INIT ==================
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบก่อนทำการถอนเงิน");
+        window.location.href = "/index.html";
+        return;
+      }
+
+      document.getElementById("amount").addEventListener("input", updateReceiveAmount);
+      document.getElementById("withdraw-btn").addEventListener("click", handleWithdraw);
+
+      await loadProfile();
+      await refreshBalance();
+      updateReceiveAmount();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>การแจ้งเตือน — INTL LOTTO</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ฟอนต์ + Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ไอคอน -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Prompt', sans-serif;
+      background: linear-gradient(180deg, #e0f2fe 0%, #f3f4f6 40%, #f9fafb 100%);
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px 16px 24px;
+      padding-bottom: 40px;
+      width: 100%;
+    }
+
+    .notif-card {
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(148,163,184,0.25);
+      padding: 12px 12px 10px;
+      display: flex;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .notif-card.unread {
+      background: #f0f9ff;
+      border-color: #bfdbfe;
+    }
+
+    .notif-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .notif-type-system    { background: #eff6ff; color: #1d4ed8; }
+    .notif-type-deposit   { background: #ecfdf3; color: #16a34a; }
+    .notif-type-withdraw  { background: #fef2f2; color: #b91c1c; }
+    .notif-type-lottery   { background: #fef3c7; color: #d97706; }
+    .notif-type-promotion { background: #fdf2ff; color: #a855f7; }
+    .notif-type-other     { background: #e5e7eb; color: #374151; }
+
+    .notif-dot-unread {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #0ea5e9;
+    }
+
+    .notif-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .notif-message {
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    .notif-meta {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .notif-link {
+      font-size: 0.75rem;
+      color: #0ea5e9;
+      text-decoration: underline;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-align: center;
+      padding: 18px 8px;
+    }
+
+    .loading-state {
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-align: center;
+      padding: 18px 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR แบบหน้าแยก (เหมือน deposit/withdraw) -->
+  <div class="bg-sky-600 text-white py-3 px-4 flex items-center gap-3 shadow-md">
+    <button onclick="window.history.back()" class="text-white text-xl">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <div>
+      <div class="text-lg font-semibold leading-none">INTL LOTTO</div>
+      <div class="text-xs opacity-90 -mt-1">การแจ้งเตือน</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="page-wrapper">
+    <div class="mb-3">
+      <h1 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+        <i class="fas fa-bell text-sky-500"></i>
+        การแจ้งเตือนจากระบบ
+      </h1>
+      <p class="text-xs text-gray-500 mt-1">
+        ข้อมูลข่าวสาร การปรับยอด และข้อความสำคัญที่ระบบส่งถึงคุณ
+      </p>
+    </div>
+
+    <!-- ปุ่มรีเฟรช -->
+    <div class="flex justify-end mb-2">
+      <button
+        type="button"
+        onclick="reloadNotifications()"
+        class="flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs border-sky-200 text-sky-600 bg-sky-50 hover:bg-sky-100">
+        <i class="fas fa-rotate-right"></i>
+        รีเฟรช
+      </button>
+    </div>
+
+    <!-- กล่องแสดงรายการแจ้งเตือน -->
+    <div id="notif-list" class="space-y-3">
+      <div class="loading-state">
+        กำลังโหลดข้อมูลการแจ้งเตือน...
+      </div>
+    </div>
+
+    <p class="text-[11px] text-gray-400 mt-4">
+      * เมื่อคุณเข้าหน้านี้ ระบบจะบันทึกว่าแจ้งเตือนทั้งหมดถูกอ่านแล้วโดยอัตโนมัติ
+    </p>
+  </div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const token = localStorage.getItem("token");
+  const socket = io({ auth: { token } });
+</script>
+
+  <!-- JS: โหลดแจ้งเตือน -->
+  <script>
+    const API_BASE = '/api';
+
+    function ensureLoggedIn() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อนดูการแจ้งเตือน');
+        window.location.href = '/index.html';
+        return null;
+      }
+      return token;
+    }
+
+    function formatDateTh(isoString) {
+      if (!isoString) return '-';
+      const d = new Date(isoString);
+      if (Number.isNaN(d.getTime())) return '-';
+
+      return d.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    // ✅ FIXED: รองรับ type จาก backend ครบทุกค่า
+  function getTypeIconAndClass(type) {
+    switch ((type || '').toLowerCase()) {
+      case 'system':
+        return { icon: 'fa-gear', cls: 'notif-type-system', label: 'ระบบ' };
+
+      case 'info':
+        return { icon: 'fa-circle-info', cls: 'notif-type-system', label: 'ข้อมูล' };
+
+      case 'deposit':
+        return { icon: 'fa-circle-arrow-down', cls: 'notif-type-deposit', label: 'ฝากเงิน' };
+
+      case 'withdraw':
+        return { icon: 'fa-circle-arrow-up', cls: 'notif-type-withdraw', label: 'ถอนเงิน' };
+
+      case 'lottery':
+        return { icon: 'fa-ticket', cls: 'notif-type-lottery', label: 'หวย' };
+
+      case 'bonus':
+        return { icon: 'fa-gift', cls: 'notif-type-promotion', label: 'โบนัส' };
+
+      default:
+        return { icon: 'fa-bell', cls: 'notif-type-other', label: 'อื่น ๆ' };
+    }
+  }
+
+    async function loadNotifications() {
+      const token = ensureLoggedIn();
+      if (!token) return;
+
+      const listEl = document.getElementById('notif-list');
+      listEl.innerHTML = '<div class="loading-state">กำลังโหลดข้อมูลการแจ้งเตือน...</div>';
+
+      try {
+        const res = await fetch(API_BASE + '/notifications', {
+          headers: {
+            'Authorization': 'Bearer ' + token,
+          },
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          listEl.innerHTML =
+            '<div class="empty-state">ไม่สามารถโหลดข้อมูลการแจ้งเตือนได้</div>';
+          return;
+        }
+
+        const notifications = Array.isArray(data.notifications) ? data.notifications : [];
+
+        if (!notifications.length) {
+          listEl.innerHTML =
+            '<div class="empty-state">ยังไม่มีการแจ้งเตือนจากระบบ</div>';
+        } else {
+          listEl.innerHTML = '';
+          notifications.forEach((n) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'notif-card ' + (n.isRead ? '' : 'unread');
+
+            const t = getTypeIconAndClass(n.type);
+            const createdAt = formatDateTh(n.createdAt);
+
+            wrapper.innerHTML = `
+              ${!n.isRead ? '<div class="notif-dot-unread"></div>' : ''}
+              <div class="notif-icon ${t.cls}">
+                <i class="fa-solid ${t.icon}"></i>
+              </div>
+              <div class="flex-1">
+                <div class="notif-title">
+                  ${n.title ? escapeHtml(n.title) : '(ไม่มีหัวข้อ)'}
+                </div>
+                <div class="notif-message">
+                  ${n.message ? escapeHtml(n.message) : ''}
+                </div>
+                <div class="notif-meta">
+                  <span>${createdAt}</span>
+                  ${
+                    n.link
+                      ? `<a href="${n.link}" class="notif-link">ดูรายละเอียด</a>`
+                      : ''
+                  }
+                </div>
+              </div>
+            `;
+
+            listEl.appendChild(wrapper);
+          });
+        }
+
+        // ทำ read-all แบบเบา ๆ (ไม่ต้องรอ)
+        markAllAsRead(token);
+      } catch (err) {
+        console.error('loadNotifications error:', err);
+        listEl.innerHTML =
+          '<div class="empty-state">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์</div>';
+      }
+    }
+
+    // escape text ก่อนใส่ innerHTML ป้องกัน XSS เล็กน้อย
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function reloadNotifications() {
+      loadNotifications();
+    }
+
+    async function markAllAsRead(token) {
+      try {
+        await fetch("/api/notifications/read-all", {
+          method: 'PATCH',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+          },
+        });
+        localStorage.setItem("notif_read_sync", Date.now().toString());
+        // ไม่ต้องทำอะไรต่อ ปล่อยไว้ให้ unread-count ฝั่งกระดิ่งไปอัปเดตตอนโหลดหน้าอื่น
+      } catch (err) {
+        console.error('markAllAsRead error:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNotifications);
+
+  </script>
+</body>
+</html>
