@@ -5,12 +5,12 @@ const http = require("http");
 
 const app = express();
 
-// Render จะส่ง PORT มาให้ผ่าน env
+// Render จะส่ง PORT มาให้ผ่าน environment
 const PORT = process.env.PORT || 10000;
 
-// =========================
-// 🔎 ROUTE ทดสอบ (ไม่พึ่ง DB / worker / socket)
-// =========================
+// ============================
+// 🔎 ROUTE ทดสอบ (ไม่มี DB / worker / socket / middleware)
+// ============================
 app.get("/", (req, res) => {
   res.send("✅ RENDER OK - Express server is running");
 });
@@ -19,9 +19,9 @@ app.get("/ping", (req, res) => {
   res.status(200).json({ status: "alive" });
 });
 
-// =========================
+// ============================
 // 🚀 START SERVER (สำคัญมากสำหรับ Render)
-// =========================
+// ============================
 const server = http.createServer(app);
 
 server.listen(PORT, "0.0.0.0", () => {
