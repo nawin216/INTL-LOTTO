@@ -1,58 +1,61 @@
-// index.js (TEST VERSION – Routes Only)
+// index.js (TEST VERSION – ROUTES ONLY)
 
 const express = require("express");
-const cors = require("cors");
-const path = require("path");
-require("dotenv").config();
+const http = require("http");
 
 const app = express();
-
-// 🔧 PORT (Render จะส่งมาให้ใน env)
 const PORT = process.env.PORT || 10000;
 
-// =========================
-//  Middleware
-// =========================
-app.use(cors());
+// =======================
+// MIDDLEWARE
+// =======================
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// =========================
-//  TEST ROUTES (พื้นฐาน)
-// =========================
+// =======================
+// HEALTH CHECK
+// =======================
 app.get("/", (req, res) => {
   res.send("✅ DB CONNECTED + ROUTES OK");
 });
 
 app.get("/ping", (req, res) => {
-  res.status(200).json({ status: "alive" });
+  res.json({ status: "alive" });
 });
 
-// =========================
-//  LOAD ROUTES (เฉพาะ API)
-// =========================
-try {
-  const authRoutes = require("./routes/auth");
-  const lotteryRoutes = require("./routes/lottery");
+// =======================
+// TEST API ROUTES
+// =======================
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/lottery", lotteryRoutes);
+// จำลอง /api/auth
+app.use("/api/auth", (req, res) => {
+  res.json({
+    ok: true,
+    route: "/api/auth",
+    method: req.method,
+  });
+});
 
-  console.log("✅ Routes loaded: /api/auth, /api/lottery");
-} catch (err) {
-  console.error("❌ Error loading routes:", err.message);
-}
+// จำลอง /api/lottery
+app.use("/api/lottery", (req, res) => {
+  res.json({
+    ok: true,
+    route: "/api/lottery",
+    method: req.method,
+  });
+});
 
-// =========================
-//  404 HANDLER
-// =========================
+// =======================
+// 404 HANDLER
+// =======================
 app.use((req, res) => {
   res.status(404).json({ message: "❌ API endpoint not found" });
 });
 
-// =========================
-//  START SERVER
-// =========================
-app.listen(PORT, "0.0.0.0", () => {
+// =======================
+// START SERVER
+// =======================
+const server = http.createServer(app);
+
+server.listen(PORT, "0.0.0.0", () => {
   console.log("🚀 Test server running on port:", PORT);
 });
