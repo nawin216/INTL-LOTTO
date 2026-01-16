@@ -1,24 +1,31 @@
-// index.js (RENDER DEBUG VERSION)
-
 const express = require("express");
 const http = require("http");
+require("dotenv").config();
+
+const connectDB = require("./config/db");
 
 const app = express();
-
-// Render จะส่ง PORT มาให้ทาง env เสมอ
 const PORT = process.env.PORT || 10000;
 
-// ROUTE ทดสอบ
+// เชื่อมต่อ DB ก่อน
+connectDB()
+  .then(() => {
+    console.log("✅ MongoDB connected");
+  })
+  .catch((err) => {
+    console.error("❌ MongoDB error:", err.message);
+  });
+
 app.get("/", (req, res) => {
-  res.send("✅ RENDER OK - Express server is running");
+  res.send("✅ DB CONNECTED - SERVER OK");
 });
 
 app.get("/ping", (req, res) => {
-  res.status(200).json({ status: "alive" });
+  res.json({ status: "alive" });
 });
 
-// สำคัญมาก: ต้อง bind ที่ 0.0.0.0 เท่านั้น
 const server = http.createServer(app);
+
 server.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Test server running on port:", PORT);
+  console.log("🚀 Server running on port:", PORT);
 });
