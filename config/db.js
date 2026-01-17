@@ -6,7 +6,7 @@ const connectDB = async () => {
   if (isConnected) return;
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 10000, // ⏱ รอ server ไม่เกิน 10 วิ
       socketTimeoutMS: 45000,
       maxPoolSize: 10,
