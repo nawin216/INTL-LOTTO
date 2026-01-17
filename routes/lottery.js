@@ -66,20 +66,17 @@ router.get('/rounds/:roundId', async (req, res) => {
 
 // ---------- BUY TICKET ----------
 router.post('/rounds/:roundId/tickets', authenticate, async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const userId = getUserId(req);
     const { entries } = req.body;
     const roundId = req.params.roundId;
 
-    const round = await LotteryRound.findOne({ roundId }).session(session);
+    const round = await LotteryRound.findOne({ roundId });
     if (!round || round.status !== 'open') {
-      throw new Error('ROUND_CLOSED');
+      return res.status(400).json({ error: 'ROUND_CLOSED' });
     }
 
-    const user = await User.findById(userId).session(session);
+    const user = await User.findById(userId);
     let totalStake = 0;
     const ticketEntries = [];
 
@@ -97,8 +94,8 @@ router.post('/rounds/:roundId/tickets', authenticate, async (req, res) => {
       }
 
       const payout = Math.floor(e.stake * (100 + percent) / 100);
-
       totalStake += e.stake;
+
       ticketEntries.push({
         ...e,
         appliedPercent: percent,
@@ -107,30 +104,37 @@ router.post('/rounds/:roundId/tickets', authenticate, async (req, res) => {
     }
 
     if (user.wallet.balance < totalStake) {
-      throw new Error('INSUFFICIENT_BALANCE');
+      return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
     }
 
-    const ticket = await Ticket.create([{
+    const ticket = await Ticket.create({
       ticketId: genTicketId(),
       userId,
       roundId,
       entries: ticketEntries,
       totalStake,
       status: 'pending',
-    }], { session });
+    });
 
     user.wallet.balance -= totalStake;
-    await user.save({ session });
+    await user.save();
 
-    await Transaction.create([{
+    await Transaction.create({
       userId,
       type: 'lottery_purchase',
       amount: totalStake,
       balanceAfter: user.wallet.balance,
       meta: { roundId }
-    }], { session });
+    });
 
-    await session.commitTransaction();
+    res.json({ ok: true, ticket });
+
+  } catch (err) {
+    console.error('LOTTERY BUY ERROR:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 
 /* =========================
    🔔 1) บันทึก Notification ลง MongoDB
